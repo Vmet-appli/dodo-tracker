@@ -228,11 +228,17 @@
                             <option value="0">Aucun</option>
                             <option value="1">1 fois</option>
                             <option value="2">2 fois</option>
-                            <option value="3">3 fois</option>
-                            <option value="4">4+ fois</option>
+                            <option value="3" selected>3 fois</option>
+                            <option value="4">4 fois</option>
+                            <option value="5">5 fois</option>
+                            <option value="6">6 fois</option>
+                            <option value="7">7 fois</option>
+                            <option value="8">8 fois</option>
+                            <option value="9">9 fois</option>
+                            <option value="10">10+ fois</option>
                         </select>
                     </div>
-                    <div class="form-group conditional" id="awakening-duration-group" style="display:none;">
+                    <div class="form-group conditional" id="awakening-duration-group">
                         <label for="awakeningDuration">⏱️ Durée moyenne des réveils</label>
                         <select id="awakeningDuration">
                             <option value="5">~5 min</option>
@@ -247,14 +253,14 @@
                             <label for="stuffyNose">👃 Nez bouché</label>
                             <select id="stuffyNose">
                                 <option value="no">Non</option>
-                                <option value="yes">Oui</option>
+                                <option value="yes" selected>Oui</option>
                             </select>
                         </div>
                         <div class="form-group">
                             <label for="sjsr">🦵 SJSR</label>
                             <select id="sjsr">
                                 <option value="no">Non</option>
-                                <option value="yes">Oui</option>
+                                <option value="yes" selected>Oui</option>
                             </select>
                         </div>
                     </div>
@@ -263,25 +269,25 @@
                     <div class="form-group">
                         <label>😴 Note globale qualité sommeil</label>
                         <div class="rating-container">
-                            <input type="range" id="quality" min="1" max="5" value="3">
+                            <input type="range" id="quality" min="1" max="10" value="5">
                             <div class="rating-labels">
                                 <span>Mauvais</span>
                                 <span>Moyen</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="rating-display"><span id="quality-value">3</span>/5</div>
+                            <div class="rating-display"><span id="quality-value">5</span>/10</div>
                         </div>
                     </div>
                     <div class="form-group">
                         <label>⚡ Énergie au réveil</label>
                         <div class="rating-container">
-                            <input type="range" id="energy" min="1" max="5" value="3">
+                            <input type="range" id="energy" min="1" max="10" value="5">
                             <div class="rating-labels">
                                 <span>Fatigué</span>
                                 <span>Normal</span>
                                 <span>En forme</span>
                             </div>
-                            <div class="rating-display"><span id="energy-value">3</span>/5</div>
+                            <div class="rating-display"><span id="energy-value">5</span>/10</div>
                         </div>
                     </div>
                     <div class="form-group">
@@ -546,7 +552,13 @@
                             <option value="1">1</option>
                             <option value="2">2</option>
                             <option value="3">3</option>
-                            <option value="4">4+</option>
+                            <option value="4">4</option>
+                            <option value="5">5</option>
+                            <option value="6">6</option>
+                            <option value="7">7</option>
+                            <option value="8">8</option>
+                            <option value="9">9</option>
+                            <option value="10">10+</option>
                         </select>
                     </div>
                     <div class="form-group">
@@ -581,12 +593,12 @@
 
                 <div class="form-row">
                     <div class="form-group">
-                        <label for="edit-quality">Qualité: <span id="edit-quality-value">3</span>/5</label>
-                        <input type="range" id="edit-quality" min="1" max="5" value="3">
+                        <label for="edit-quality">Qualité: <span id="edit-quality-value">5</span>/10</label>
+                        <input type="range" id="edit-quality" min="1" max="10" value="5">
                     </div>
                     <div class="form-group">
-                        <label for="edit-energy">Énergie: <span id="edit-energy-value">3</span>/5</label>
-                        <input type="range" id="edit-energy" min="1" max="5" value="3">
+                        <label for="edit-energy">Énergie: <span id="edit-energy-value">5</span>/10</label>
+                        <input type="range" id="edit-energy" min="1" max="10" value="5">
                     </div>
                 </div>
 

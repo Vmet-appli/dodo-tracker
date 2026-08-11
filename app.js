@@ -264,13 +264,16 @@ function initForm() {
 function resetForm() {
     document.getElementById('sleep-form').reset();
     setDefaultDate();
-    ['quality', 'energy', 'stress', 'rumination', 'sadness'].forEach(id => {
+    ['stress', 'rumination', 'sadness'].forEach(id => {
         const defaultVal = (id === 'rumination' || id === 'sadness') ? 1 : 3;
         document.getElementById(id).value = defaultVal;
         updateRangeDisplay(id, defaultVal);
     });
+    ['quality', 'energy'].forEach(id => {
+        document.getElementById(id).value = 5;
+        updateRangeDisplay(id, 5);
+    });
     document.getElementById('coffee-count-group').style.display = 'none';
-    document.getElementById('work-location-group').style.display = 'none';
     document.getElementById('awakening-duration-group').style.display = 'none';
 }
 
@@ -348,8 +351,8 @@ function createHistoryItem(entry) {
                 <div class="history-detail"><span>🛏️</span><span>Coucher: ${entry.bedtime}</span></div>
                 <div class="history-detail"><span>⏰</span><span>Levé: ${entry.waketime}</span></div>
                 <div class="history-detail"><span>⏱️</span><span>Durée: ${duration}</span></div>
-                <div class="history-detail"><span>😴</span><span class="quality-${entry.quality}">Qualité: ${entry.quality}/5</span></div>
-                <div class="history-detail"><span>⚡</span><span class="quality-${entry.energy}">Énergie: ${entry.energy}/5</span></div>
+                <div class="history-detail"><span>😴</span><span class="quality-${entry.quality}">Qualité: ${entry.quality}/10</span></div>
+                <div class="history-detail"><span>⚡</span><span class="quality-${entry.energy}">Énergie: ${entry.energy}/10</span></div>
                 <div class="history-detail"><span>🔄</span><span>Réveils: ${entry.awakenings}</span></div>
                 <div class="history-detail"><span>😰</span><span>Stress: ${entry.stress}/5</span></div>
                 <div class="history-detail"><span>👣</span><span>Pas: ${entry.steps || 0}</span></div>
