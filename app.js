@@ -194,6 +194,12 @@ function initConditionalFields() {
         document.getElementById('awakening-duration-group').style.display = 
             parseInt(e.target.value) > 0 ? 'block' : 'none';
     });
+    
+    // SJSR -> nombre de fois
+    document.getElementById('sjsr').addEventListener('change', (e) => {
+        document.getElementById('sjsr-count-group').style.display = 
+            e.target.value === 'yes' ? 'block' : 'none';
+    });
 }
 
 
@@ -270,6 +276,8 @@ function initForm() {
                 parseInt(document.getElementById('awakeningDuration').value) : 0,
             stuffyNose: document.getElementById('stuffyNose').value,
             sjsr: document.getElementById('sjsr').value,
+            sjsrCount: document.getElementById('sjsr').value === 'yes' ?
+                parseInt(document.getElementById('sjsrCount').value) : 0,
             // Bilan
             quality: parseInt(document.getElementById('quality').value),
             energy: parseInt(document.getElementById('energy').value),
@@ -353,6 +361,8 @@ async function loadExistingEntry(date) {
         document.getElementById('awakeningDuration').value = entry.awakeningDuration || 5;
         document.getElementById('stuffyNose').value = entry.stuffyNose || 'yes';
         document.getElementById('sjsr').value = entry.sjsr || 'yes';
+        document.getElementById('sjsrCount').value = entry.sjsrCount || 1;
+        document.getElementById('sjsr-count-group').style.display = entry.sjsr === 'yes' ? 'block' : 'none';
         document.getElementById('quality').value = entry.quality || 5;
         document.getElementById('energy').value = entry.energy || 5;
         document.getElementById('dreams').value = entry.dreams || 'none';
@@ -514,6 +524,7 @@ async function openEditModal(id) {
     document.getElementById('edit-awakeningDuration').value = entry.awakeningDuration || 0;
     document.getElementById('edit-stuffyNose').value = entry.stuffyNose || 'no';
     document.getElementById('edit-sjsr').value = entry.sjsr || 'no';
+    document.getElementById('edit-sjsrCount').value = entry.sjsrCount || 1;
     document.getElementById('edit-quality').value = entry.quality;
     document.getElementById('edit-energy').value = entry.energy;
     document.getElementById('edit-dreams').value = entry.dreams;
@@ -559,6 +570,7 @@ async function saveEdit(e) {
         awakeningDuration: parseInt(document.getElementById('edit-awakeningDuration').value) || 0,
         stuffyNose: document.getElementById('edit-stuffyNose').value,
         sjsr: document.getElementById('edit-sjsr').value,
+        sjsrCount: parseInt(document.getElementById('edit-sjsrCount').value) || 0,
         quality: parseInt(document.getElementById('edit-quality').value),
         energy: parseInt(document.getElementById('edit-energy').value),
         dreams: document.getElementById('edit-dreams').value,
