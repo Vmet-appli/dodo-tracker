@@ -17,13 +17,11 @@
 </head>
 <body>
     <div class="app-container">
-        <!-- Header -->
         <header class="app-header">
             <h1>🌙 DodoTracker</h1>
-            <p class="subtitle">Suivi de votre sommeil</p>
+            <p class="subtitle">Suivi complet de votre sommeil</p>
         </header>
 
-        <!-- Navigation tabs -->
         <nav class="tab-navigation">
             <button class="tab-btn active" data-tab="saisie">
                 <span class="tab-icon">📝</span>
@@ -39,28 +37,231 @@
             </button>
         </nav>
 
-        <!-- Main content -->
         <main class="main-content">
             <!-- Onglet Saisie -->
             <section id="saisie" class="tab-content active">
                 <form id="sleep-form" class="sleep-form">
+                    <h2 class="section-title">📅 Informations générales</h2>
                     <div class="form-group">
-                        <label for="date">📅 Date</label>
+                        <label for="date">Date</label>
                         <input type="date" id="date" required>
                     </div>
+                    <div class="form-group">
+                        <label for="waketime">⏰ Heure du levé</label>
+                        <input type="time" id="waketime" required>
+                    </div>
 
+                    <h2 class="section-title">🍽️ Alimentation</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="breakfast">Petit-déjeuner</label>
+                            <select id="breakfast">
+                                <option value="yes">Oui</option>
+                                <option value="no">Non</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="coffee">Café</label>
+                            <select id="coffee">
+                                <option value="no">Non</option>
+                                <option value="yes">Oui</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group conditional" id="coffee-count-group" style="display:none;">
+                        <label for="coffeeCount">☕ Nombre de cafés</label>
+                        <select id="coffeeCount">
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="lunch">🍴 Déjeuner</label>
+                        <select id="lunch">
+                            <option value="none">Pas de déjeuner</option>
+                            <option value="meat">Viande</option>
+                            <option value="fish">Poisson</option>
+                            <option value="vegetal">Végétal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="dinner">🍽️ Dîner</label>
+                        <select id="dinner">
+                            <option value="none">Pas de dîner</option>
+                            <option value="meat">Viande</option>
+                            <option value="fish">Poisson</option>
+                            <option value="vegetal">Végétal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="supplement">💊 Complément alimentaire</label>
+                        <select id="supplement">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+
+                    <h2 class="section-title">🏃 Activité</h2>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="sport">Sport</label>
+                            <select id="sport">
+                                <option value="no">Non</option>
+                                <option value="yes">Oui</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="work">Travail</label>
+                            <select id="work">
+                                <option value="no">Non</option>
+                                <option value="yes">Oui</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group conditional" id="work-location-group" style="display:none;">
+                        <label for="workLocation">📍 Lieu de travail</label>
+                        <select id="workLocation">
+                            <option value="office">Sur site</option>
+                            <option value="remote">Télétravail</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="outdoorTime">☀️ Temps passé à l'extérieur</label>
+                        <select id="outdoorTime">
+                            <option value="0">Pas du tout</option>
+                            <option value="15">~15 min</option>
+                            <option value="30">~30 min</option>
+                            <option value="60">~1h</option>
+                            <option value="120">~2h</option>
+                            <option value="180">3h+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="steps">👣 Nombre de pas</label>
+                        <input type="number" id="steps" placeholder="ex: 8000" min="0" max="50000">
+                    </div>
+                    <div class="form-group">
+                        <label for="nap">😴 Sieste</label>
+                        <select id="nap">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+
+                    <h2 class="section-title">🧠 Bien-être mental</h2>
+                    <div class="form-group">
+                        <label>😰 Niveau de stress</label>
+                        <div class="rating-container">
+                            <input type="range" id="stress" min="1" max="5" value="3">
+                            <div class="rating-labels">
+                                <span>Zen</span>
+                                <span>Moyen</span>
+                                <span>Très stressé</span>
+                            </div>
+                            <div class="rating-display"><span id="stress-value">3</span>/5</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>🔄 Rumination / Contrariété</label>
+                        <div class="rating-container">
+                            <input type="range" id="rumination" min="1" max="5" value="1">
+                            <div class="rating-labels">
+                                <span>Aucune</span>
+                                <span>Modérée</span>
+                                <span>Intense</span>
+                            </div>
+                            <div class="rating-display"><span id="rumination-value">1</span>/5</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>😔 Morosité / Tristesse</label>
+                        <div class="rating-container">
+                            <input type="range" id="sadness" min="1" max="5" value="1">
+                            <div class="rating-labels">
+                                <span>Aucune</span>
+                                <span>Modérée</span>
+                                <span>Forte</span>
+                            </div>
+                            <div class="rating-display"><span id="sadness-value">1</span>/5</div>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="dayQuality">🌤️ Qualité de la journée</label>
+                        <div class="day-quality-selector">
+                            <label class="quality-option">
+                                <input type="radio" name="dayQuality" value="sun" checked>
+                                <span class="quality-icon">☀️</span>
+                                <span>Soleil</span>
+                            </label>
+                            <label class="quality-option">
+                                <input type="radio" name="dayQuality" value="cloud">
+                                <span class="quality-icon">⛅</span>
+                                <span>Nuage</span>
+                            </label>
+                            <label class="quality-option">
+                                <input type="radio" name="dayQuality" value="rain">
+                                <span class="quality-icon">🌧️</span>
+                                <span>Pluie</span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">🌙 Sommeil</h2>
+                    <div class="form-group">
+                        <label for="eveningActivity">📱 Avant de dormir</label>
+                        <select id="eveningActivity">
+                            <option value="screen">Écran</option>
+                            <option value="reading">Lecture</option>
+                            <option value="both">Les deux</option>
+                            <option value="none">Aucun</option>
+                        </select>
+                    </div>
                     <div class="form-group">
                         <label for="bedtime">🛏️ Heure du coucher</label>
                         <input type="time" id="bedtime" required>
                     </div>
-
                     <div class="form-group">
-                        <label for="waketime">⏰ Heure du réveil</label>
-                        <input type="time" id="waketime" required>
+                        <label for="awakenings">🔄 Réveils dans la nuit</label>
+                        <select id="awakenings">
+                            <option value="0">Aucun</option>
+                            <option value="1">1 fois</option>
+                            <option value="2">2 fois</option>
+                            <option value="3">3 fois</option>
+                            <option value="4">4+ fois</option>
+                        </select>
+                    </div>
+                    <div class="form-group conditional" id="awakening-duration-group" style="display:none;">
+                        <label for="awakeningDuration">⏱️ Durée moyenne des réveils</label>
+                        <select id="awakeningDuration">
+                            <option value="5">~5 min</option>
+                            <option value="15">~15 min</option>
+                            <option value="30">~30 min</option>
+                            <option value="60">~1h</option>
+                            <option value="90">1h+</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="stuffyNose">👃 Nez bouché</label>
+                            <select id="stuffyNose">
+                                <option value="no">Non</option>
+                                <option value="yes">Oui</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="sjsr">🦵 SJSR</label>
+                            <select id="sjsr">
+                                <option value="no">Non</option>
+                                <option value="yes">Oui</option>
+                            </select>
+                        </div>
                     </div>
 
+                    <h2 class="section-title">⭐ Bilan</h2>
                     <div class="form-group">
-                        <label>😴 Qualité du sommeil</label>
+                        <label>😴 Note globale qualité sommeil</label>
                         <div class="rating-container">
                             <input type="range" id="quality" min="1" max="5" value="3">
                             <div class="rating-labels">
@@ -68,12 +269,9 @@
                                 <span>Moyen</span>
                                 <span>Excellent</span>
                             </div>
-                            <div class="rating-display">
-                                <span id="quality-value">3</span>/5
-                            </div>
+                            <div class="rating-display"><span id="quality-value">3</span>/5</div>
                         </div>
                     </div>
-
                     <div class="form-group">
                         <label>⚡ Énergie au réveil</label>
                         <div class="rating-container">
@@ -83,22 +281,9 @@
                                 <span>Normal</span>
                                 <span>En forme</span>
                             </div>
-                            <div class="rating-display">
-                                <span id="energy-value">3</span>/5
-                            </div>
+                            <div class="rating-display"><span id="energy-value">3</span>/5</div>
                         </div>
                     </div>
-
-                    <div class="form-group">
-                        <label for="awakenings">🔄 Réveils nocturnes</label>
-                        <select id="awakenings">
-                            <option value="0">Aucun</option>
-                            <option value="1">1 fois</option>
-                            <option value="2">2 fois</option>
-                            <option value="3">3 fois ou plus</option>
-                        </select>
-                    </div>
-
                     <div class="form-group">
                         <label for="dreams">💭 Rêves</label>
                         <select id="dreams">
@@ -108,15 +293,11 @@
                             <option value="bad">Cauchemars</option>
                         </select>
                     </div>
-
                     <div class="form-group">
                         <label for="notes">📝 Notes (optionnel)</label>
-                        <textarea id="notes" rows="3" placeholder="Événements particuliers, stress, activité physique..."></textarea>
+                        <textarea id="notes" rows="3" placeholder="Événements particuliers, remarques..."></textarea>
                     </div>
-
-                    <button type="submit" class="btn-primary">
-                        💾 Enregistrer
-                    </button>
+                    <button type="submit" class="btn-primary">💾 Enregistrer</button>
                 </form>
             </section>
 
@@ -130,9 +311,7 @@
                         <input type="file" id="import-file" accept=".json" hidden>
                     </div>
                 </div>
-                <div id="history-list" class="history-list">
-                    <!-- Les entrées seront ajoutées ici dynamiquement -->
-                </div>
+                <div id="history-list" class="history-list"></div>
             </section>
 
             <!-- Onglet Statistiques -->
@@ -147,7 +326,6 @@
                         <option value="all">Tout</option>
                     </select>
                 </div>
-
                 <div class="stats-grid">
                     <div class="stat-card">
                         <div class="stat-icon">⏱️</div>
@@ -170,29 +348,24 @@
                         <div class="stat-label">Nuits enregistrées</div>
                     </div>
                 </div>
-
                 <div class="chart-container">
-                    <h3>📈 Évolution de la qualité du sommeil</h3>
+                    <h3>📈 Qualité du sommeil & Énergie</h3>
                     <canvas id="quality-chart"></canvas>
                 </div>
-
                 <div class="chart-container">
                     <h3>⏰ Durée de sommeil</h3>
                     <canvas id="duration-chart"></canvas>
                 </div>
-
                 <div class="chart-container">
                     <h3>🕐 Heures de coucher</h3>
                     <canvas id="bedtime-chart"></canvas>
                 </div>
             </section>
         </main>
-
-        <!-- Toast notification -->
         <div id="toast" class="toast"></div>
     </div>
 
-    <!-- Modal de confirmation de suppression -->
+    <!-- Modal de suppression -->
     <div id="delete-modal" class="modal">
         <div class="modal-content">
             <h3>Supprimer cette entrée ?</h3>
@@ -206,24 +379,206 @@
 
     <!-- Modal d'édition -->
     <div id="edit-modal" class="modal">
-        <div class="modal-content modal-large">
+        <div class="modal-content modal-large modal-scroll">
             <h3>✏️ Modifier l'entrée</h3>
             <form id="edit-form">
                 <input type="hidden" id="edit-id">
+                
                 <div class="form-row">
                     <div class="form-group">
                         <label for="edit-date">Date</label>
                         <input type="date" id="edit-date" required>
                     </div>
                     <div class="form-group">
+                        <label for="edit-waketime">Levé</label>
+                        <input type="time" id="edit-waketime" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-breakfast">Petit-déj</label>
+                        <select id="edit-breakfast">
+                            <option value="yes">Oui</option>
+                            <option value="no">Non</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-coffee">Café</label>
+                        <select id="edit-coffee">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-coffeeCount">Nb cafés</label>
+                        <select id="edit-coffeeCount">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-lunch">Déjeuner</label>
+                        <select id="edit-lunch">
+                            <option value="none">Aucun</option>
+                            <option value="meat">Viande</option>
+                            <option value="fish">Poisson</option>
+                            <option value="vegetal">Végétal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-dinner">Dîner</label>
+                        <select id="edit-dinner">
+                            <option value="none">Aucun</option>
+                            <option value="meat">Viande</option>
+                            <option value="fish">Poisson</option>
+                            <option value="vegetal">Végétal</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-supplement">Complément</label>
+                        <select id="edit-supplement">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-sport">Sport</label>
+                        <select id="edit-sport">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-work">Travail</label>
+                        <select id="edit-work">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-workLocation">Lieu</label>
+                        <select id="edit-workLocation">
+                            <option value="office">Site</option>
+                            <option value="remote">Télétravail</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-outdoorTime">Extérieur</label>
+                        <select id="edit-outdoorTime">
+                            <option value="0">0</option>
+                            <option value="15">15min</option>
+                            <option value="30">30min</option>
+                            <option value="60">1h</option>
+                            <option value="120">2h</option>
+                            <option value="180">3h+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-steps">Pas</label>
+                        <input type="number" id="edit-steps" min="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-nap">Sieste</label>
+                        <select id="edit-nap">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-stress">Stress: <span id="edit-stress-value">3</span>/5</label>
+                        <input type="range" id="edit-stress" min="1" max="5" value="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-rumination">Rumination: <span id="edit-rumination-value">1</span>/5</label>
+                        <input type="range" id="edit-rumination" min="1" max="5" value="1">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-sadness">Tristesse: <span id="edit-sadness-value">1</span>/5</label>
+                        <input type="range" id="edit-sadness" min="1" max="5" value="1">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-dayQuality">Journée</label>
+                        <select id="edit-dayQuality">
+                            <option value="sun">☀️ Soleil</option>
+                            <option value="cloud">⛅ Nuage</option>
+                            <option value="rain">🌧️ Pluie</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-eveningActivity">Soir</label>
+                        <select id="edit-eveningActivity">
+                            <option value="screen">Écran</option>
+                            <option value="reading">Lecture</option>
+                            <option value="both">Les deux</option>
+                            <option value="none">Aucun</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
                         <label for="edit-bedtime">Coucher</label>
                         <input type="time" id="edit-bedtime" required>
                     </div>
                     <div class="form-group">
-                        <label for="edit-waketime">Réveil</label>
-                        <input type="time" id="edit-waketime" required>
+                        <label for="edit-awakenings">Réveils</label>
+                        <select id="edit-awakenings">
+                            <option value="0">0</option>
+                            <option value="1">1</option>
+                            <option value="2">2</option>
+                            <option value="3">3</option>
+                            <option value="4">4+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-awakeningDuration">Durée</label>
+                        <select id="edit-awakeningDuration">
+                            <option value="0">-</option>
+                            <option value="5">5min</option>
+                            <option value="15">15min</option>
+                            <option value="30">30min</option>
+                            <option value="60">1h</option>
+                            <option value="90">1h+</option>
+                        </select>
                     </div>
                 </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-stuffyNose">Nez bouché</label>
+                        <select id="edit-stuffyNose">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-sjsr">SJSR</label>
+                        <select id="edit-sjsr">
+                            <option value="no">Non</option>
+                            <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                </div>
+
                 <div class="form-row">
                     <div class="form-group">
                         <label for="edit-quality">Qualité: <span id="edit-quality-value">3</span>/5</label>
@@ -234,30 +589,24 @@
                         <input type="range" id="edit-energy" min="1" max="5" value="3">
                     </div>
                 </div>
+
                 <div class="form-row">
-                    <div class="form-group">
-                        <label for="edit-awakenings">Réveils</label>
-                        <select id="edit-awakenings">
-                            <option value="0">Aucun</option>
-                            <option value="1">1 fois</option>
-                            <option value="2">2 fois</option>
-                            <option value="3">3+ fois</option>
-                        </select>
-                    </div>
                     <div class="form-group">
                         <label for="edit-dreams">Rêves</label>
                         <select id="edit-dreams">
-                            <option value="none">Pas de souvenir</option>
+                            <option value="none">Aucun</option>
                             <option value="neutral">Neutres</option>
                             <option value="good">Bons</option>
                             <option value="bad">Cauchemars</option>
                         </select>
                     </div>
                 </div>
+
                 <div class="form-group">
                     <label for="edit-notes">Notes</label>
                     <textarea id="edit-notes" rows="2"></textarea>
                 </div>
+
                 <div class="modal-actions">
                     <button type="button" id="cancel-edit" class="btn-secondary">Annuler</button>
                     <button type="submit" class="btn-primary">Enregistrer</button>
