@@ -2,7 +2,7 @@
     "name": "DodoTracker - Suivi du Sommeil",
     "short_name": "DodoTracker",
     "description": "Application de suivi quotidien de votre sommeil",
-    "start_url": "./",
+    "start_url": "index.html",
     "display": "standalone",
     "background_color": "#0f172a",
     "theme_color": "#4f46e5",
