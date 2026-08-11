@@ -1,0 +1,272 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#4f46e5">
+    <meta name="description" content="Application de suivi du sommeil">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="DodoTracker">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <title>DodoTracker - Suivi du Sommeil</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <h1>🌙 DodoTracker</h1>
+            <p class="subtitle">Suivi de votre sommeil</p>
+        </header>
+
+        <!-- Navigation tabs -->
+        <nav class="tab-navigation">
+            <button class="tab-btn active" data-tab="saisie">
+                <span class="tab-icon">📝</span>
+                <span class="tab-label">Saisie</span>
+            </button>
+            <button class="tab-btn" data-tab="historique">
+                <span class="tab-icon">📅</span>
+                <span class="tab-label">Historique</span>
+            </button>
+            <button class="tab-btn" data-tab="stats">
+                <span class="tab-icon">📊</span>
+                <span class="tab-label">Stats</span>
+            </button>
+        </nav>
+
+        <!-- Main content -->
+        <main class="main-content">
+            <!-- Onglet Saisie -->
+            <section id="saisie" class="tab-content active">
+                <form id="sleep-form" class="sleep-form">
+                    <div class="form-group">
+                        <label for="date">📅 Date</label>
+                        <input type="date" id="date" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="bedtime">🛏️ Heure du coucher</label>
+                        <input type="time" id="bedtime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="waketime">⏰ Heure du réveil</label>
+                        <input type="time" id="waketime" required>
+                    </div>
+
+                    <div class="form-group">
+                        <label>😴 Qualité du sommeil</label>
+                        <div class="rating-container">
+                            <input type="range" id="quality" min="1" max="5" value="3">
+                            <div class="rating-labels">
+                                <span>Mauvais</span>
+                                <span>Moyen</span>
+                                <span>Excellent</span>
+                            </div>
+                            <div class="rating-display">
+                                <span id="quality-value">3</span>/5
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label>⚡ Énergie au réveil</label>
+                        <div class="rating-container">
+                            <input type="range" id="energy" min="1" max="5" value="3">
+                            <div class="rating-labels">
+                                <span>Fatigué</span>
+                                <span>Normal</span>
+                                <span>En forme</span>
+                            </div>
+                            <div class="rating-display">
+                                <span id="energy-value">3</span>/5
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="awakenings">🔄 Réveils nocturnes</label>
+                        <select id="awakenings">
+                            <option value="0">Aucun</option>
+                            <option value="1">1 fois</option>
+                            <option value="2">2 fois</option>
+                            <option value="3">3 fois ou plus</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="dreams">💭 Rêves</label>
+                        <select id="dreams">
+                            <option value="none">Pas de souvenir</option>
+                            <option value="neutral">Rêves neutres</option>
+                            <option value="good">Bons rêves</option>
+                            <option value="bad">Cauchemars</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group">
+                        <label for="notes">📝 Notes (optionnel)</label>
+                        <textarea id="notes" rows="3" placeholder="Événements particuliers, stress, activité physique..."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">
+                        💾 Enregistrer
+                    </button>
+                </form>
+            </section>
+
+            <!-- Onglet Historique -->
+            <section id="historique" class="tab-content">
+                <div class="history-header">
+                    <h2>Historique des nuits</h2>
+                    <div class="history-actions">
+                        <button id="export-btn" class="btn-secondary">📤 Exporter</button>
+                        <button id="import-btn" class="btn-secondary">📥 Importer</button>
+                        <input type="file" id="import-file" accept=".json" hidden>
+                    </div>
+                </div>
+                <div id="history-list" class="history-list">
+                    <!-- Les entrées seront ajoutées ici dynamiquement -->
+                </div>
+            </section>
+
+            <!-- Onglet Statistiques -->
+            <section id="stats" class="tab-content">
+                <div class="stats-period">
+                    <label for="stats-period">Période :</label>
+                    <select id="stats-period">
+                        <option value="7">7 derniers jours</option>
+                        <option value="14">14 derniers jours</option>
+                        <option value="30" selected>30 derniers jours</option>
+                        <option value="90">3 mois</option>
+                        <option value="all">Tout</option>
+                    </select>
+                </div>
+
+                <div class="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon">⏱️</div>
+                        <div class="stat-value" id="avg-duration">--</div>
+                        <div class="stat-label">Durée moyenne</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">😴</div>
+                        <div class="stat-value" id="avg-quality">--</div>
+                        <div class="stat-label">Qualité moyenne</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">⚡</div>
+                        <div class="stat-value" id="avg-energy">--</div>
+                        <div class="stat-label">Énergie moyenne</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon">📊</div>
+                        <div class="stat-value" id="total-entries">--</div>
+                        <div class="stat-label">Nuits enregistrées</div>
+                    </div>
+                </div>
+
+                <div class="chart-container">
+                    <h3>📈 Évolution de la qualité du sommeil</h3>
+                    <canvas id="quality-chart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>⏰ Durée de sommeil</h3>
+                    <canvas id="duration-chart"></canvas>
+                </div>
+
+                <div class="chart-container">
+                    <h3>🕐 Heures de coucher</h3>
+                    <canvas id="bedtime-chart"></canvas>
+                </div>
+            </section>
+        </main>
+
+        <!-- Toast notification -->
+        <div id="toast" class="toast"></div>
+    </div>
+
+    <!-- Modal de confirmation de suppression -->
+    <div id="delete-modal" class="modal">
+        <div class="modal-content">
+            <h3>Supprimer cette entrée ?</h3>
+            <p>Cette action est irréversible.</p>
+            <div class="modal-actions">
+                <button id="cancel-delete" class="btn-secondary">Annuler</button>
+                <button id="confirm-delete" class="btn-danger">Supprimer</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal d'édition -->
+    <div id="edit-modal" class="modal">
+        <div class="modal-content modal-large">
+            <h3>✏️ Modifier l'entrée</h3>
+            <form id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-date">Date</label>
+                        <input type="date" id="edit-date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-bedtime">Coucher</label>
+                        <input type="time" id="edit-bedtime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-waketime">Réveil</label>
+                        <input type="time" id="edit-waketime" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-quality">Qualité: <span id="edit-quality-value">3</span>/5</label>
+                        <input type="range" id="edit-quality" min="1" max="5" value="3">
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-energy">Énergie: <span id="edit-energy-value">3</span>/5</label>
+                        <input type="range" id="edit-energy" min="1" max="5" value="3">
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edit-awakenings">Réveils</label>
+                        <select id="edit-awakenings">
+                            <option value="0">Aucun</option>
+                            <option value="1">1 fois</option>
+                            <option value="2">2 fois</option>
+                            <option value="3">3+ fois</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="edit-dreams">Rêves</label>
+                        <select id="edit-dreams">
+                            <option value="none">Pas de souvenir</option>
+                            <option value="neutral">Neutres</option>
+                            <option value="good">Bons</option>
+                            <option value="bad">Cauchemars</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="edit-notes">Notes</label>
+                    <textarea id="edit-notes" rows="2"></textarea>
+                </div>
+                <div class="modal-actions">
+                    <button type="button" id="cancel-edit" class="btn-secondary">Annuler</button>
+                    <button type="submit" class="btn-primary">Enregistrer</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="app.js"></script>
+</body>
+</html>
