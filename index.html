@@ -52,30 +52,30 @@
                     </div>
 
                     <h2 class="section-title">🍽️ Alimentation</h2>
+                    <div class="form-group">
+                        <label for="breakfast">🥐 Petit-déjeuner</label>
+                        <select id="breakfast">
+                            <option value="yes" selected>Oui</option>
+                            <option value="no">Non</option>
+                        </select>
+                    </div>
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="breakfast">Petit-déjeuner</label>
-                            <select id="breakfast">
-                                <option value="yes">Oui</option>
-                                <option value="no">Non</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <label for="coffee">Café</label>
+                            <label for="coffee">☕ Café</label>
                             <select id="coffee">
                                 <option value="no">Non</option>
                                 <option value="yes" selected>Oui</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-group conditional" id="coffee-count-group">
-                        <label for="coffeeCount">☕ Nombre de cafés</label>
-                        <select id="coffeeCount">
-                            <option value="1">1</option>
-                            <option value="2" selected>2</option>
-                            <option value="3">3</option>
-                            <option value="4">4+</option>
-                        </select>
+                        <div class="form-group" id="coffee-count-group">
+                            <label for="coffeeCount">Nombre</label>
+                            <select id="coffeeCount">
+                                <option value="1">1</option>
+                                <option value="2" selected>2</option>
+                                <option value="3">3</option>
+                                <option value="4">4+</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="lunch">🍴 Déjeuner</label>
