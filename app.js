@@ -607,6 +607,9 @@ function initStatsFilters() {
 async function updateStats() {
     const period = document.getElementById('stats-period').value;
     let entries = await getAllEntries();
+    
+    // Exclure les entrées incomplètes (journée en cours non terminée)
+    entries = entries.filter(e => isEntryComplete(e));
 
     if (period !== 'all') {
         const daysAgo = parseInt(period);
