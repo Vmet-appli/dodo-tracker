@@ -336,18 +336,20 @@ async function loadExistingEntry(date) {
     if (entry) {
         // Remplir le formulaire avec les données existantes
         if (entry.waketime) document.getElementById('waketime').value = entry.waketime;
+        else document.getElementById('waketime').value = '08:00';
         if (entry.bedtime) document.getElementById('bedtime').value = entry.bedtime;
+        else document.getElementById('bedtime').value = '23:00';
         document.getElementById('breakfast').value = entry.breakfast || 'yes';
-        document.getElementById('coffee').value = entry.coffee || 'no';
-        document.getElementById('coffeeCount').value = entry.coffeeCount || 1;
-        document.getElementById('coffee-count-group').style.display = entry.coffee === 'yes' ? 'block' : 'none';
+        document.getElementById('coffee').value = entry.coffee || 'yes';
+        document.getElementById('coffeeCount').value = entry.coffeeCount || 2;
+        document.getElementById('coffee-count-group').style.display = (entry.coffee || 'yes') === 'yes' ? 'block' : 'none';
         document.getElementById('lunch').value = entry.lunch || 'meat';
         document.getElementById('dinner').value = entry.dinner || 'fish';
         document.getElementById('supplement').value = entry.supplement || 'yes';
         document.getElementById('sport').value = entry.sport || 'yes';
         document.getElementById('work').value = entry.work || 'yes';
         document.getElementById('workLocation').value = entry.workLocation || 'remote';
-        document.getElementById('work-location-group').style.display = entry.work === 'yes' ? 'block' : 'none';
+        document.getElementById('work-location-group').style.display = (entry.work || 'yes') === 'yes' ? 'block' : 'none';
         document.getElementById('outdoorTime').value = entry.outdoorTime || 0;
         document.getElementById('steps').value = entry.steps || '';
         document.getElementById('nap').value = entry.nap || 'no';
@@ -362,7 +364,7 @@ async function loadExistingEntry(date) {
         document.getElementById('stuffyNose').value = entry.stuffyNose || 'yes';
         document.getElementById('sjsr').value = entry.sjsr || 'yes';
         document.getElementById('sjsrCount').value = entry.sjsrCount || 1;
-        document.getElementById('sjsr-count-group').style.display = entry.sjsr === 'yes' ? 'block' : 'none';
+        document.getElementById('sjsr-count-group').style.display = (entry.sjsr || 'yes') === 'yes' ? 'block' : 'none';
         document.getElementById('quality').value = entry.quality || 5;
         document.getElementById('energy').value = entry.energy || 5;
         document.getElementById('dreams').value = entry.dreams || 'none';
@@ -372,6 +374,12 @@ async function loadExistingEntry(date) {
         ['stress', 'rumination', 'sadness', 'quality', 'energy'].forEach(id => {
             updateRangeDisplay(id, document.getElementById(id).value);
         });
+    } else {
+        // Nouvelle journée : réinitialiser aux valeurs par défaut
+        document.getElementById('waketime').value = '08:00';
+        document.getElementById('bedtime').value = '23:00';
+        document.getElementById('notes').value = '';
+        document.getElementById('steps').value = '';
     }
 }
 
