@@ -547,6 +547,10 @@ input[type="range"]::-moz-range-thumb {
     border-color: var(--success-color);
 }
 
+.toast.warning {
+    border-color: var(--warning-color);
+}
+
 .toast.error {
     border-color: var(--danger-color);
 }

@@ -201,8 +201,37 @@ function initConditionalFields() {
 // Formulaire
 // ============================================
 
+// Champs obligatoires pour considérer une journée complète
+const REQUIRED_FIELDS = ['waketime', 'bedtime', 'quality', 'energy'];
+
 function initForm() {
     const form = document.getElementById('sleep-form');
+    const dateInput = document.getElementById('date');
+    
+    // Vérifier la complétude de la journée précédente lors du changement de date
+    dateInput.addEventListener('change', async (e) => {
+        const newDate = e.target.value;
+        const today = formatDateForInput(new Date());
+        
+        // Si on change pour une date future ou la date du jour, vérifier les jours précédents
+        if (newDate >= today) {
+            const yesterday = new Date();
+            yesterday.setDate(yesterday.getDate() - 1);
+            const yesterdayStr = formatDateForInput(yesterday);
+            
+            const yesterdayEntry = await getEntryByDate(yesterdayStr);
+            if (yesterdayEntry && !isEntryComplete(yesterdayEntry)) {
+                showToast('⚠️ Complétez d\'abord la journée du ' + formatDateDisplay(yesterdayStr), 'warning');
+                e.target.value = yesterdayStr;
+                loadExistingEntry(yesterdayStr);
+                return;
+            }
+        }
+        
+        // Charger les données existantes pour la nouvelle date
+        loadExistingEntry(newDate);
+    });
+    
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         const date = document.getElementById('date').value;
@@ -211,7 +240,7 @@ function initForm() {
         const entry = {
             id: existing?.id || generateId(),
             date: date,
-            waketime: document.getElementById('waketime').value,
+            waketime: document.getElementById('waketime').value || null,
             // Alimentation
             breakfast: document.getElementById('breakfast').value,
             coffee: document.getElementById('coffee').value,
@@ -235,7 +264,7 @@ function initForm() {
             dayQuality: document.querySelector('input[name="dayQuality"]:checked').value,
             // Sommeil
             eveningActivity: document.getElementById('eveningActivity').value,
-            bedtime: document.getElementById('bedtime').value,
+            bedtime: document.getElementById('bedtime').value || null,
             awakenings: parseInt(document.getElementById('awakenings').value),
             awakeningDuration: parseInt(document.getElementById('awakenings').value) > 0 ?
                 parseInt(document.getElementById('awakeningDuration').value) : 0,
@@ -251,13 +280,20 @@ function initForm() {
 
         try {
             await saveEntry(entry);
-            showToast(existing ? '✅ Entrée mise à jour !' : '✅ Nuit enregistrée !', 'success');
-            resetForm();
+            showToast(existing ? '✅ Entrée mise à jour !' : '✅ Enregistré !', 'success');
             loadHistory();
         } catch (error) {
             console.error('Erreur:', error);
             showToast('❌ Erreur lors de la sauvegarde', 'error');
         }
+    });
+}
+
+function isEntryComplete(entry) {
+    if (!entry) return false;
+    return REQUIRED_FIELDS.every(field => {
+        const value = entry[field];
+        return value !== null && value !== undefined && value !== '';
     });
 }
 
@@ -278,9 +314,55 @@ function resetForm() {
 }
 
 function setDefaultDate() {
-    document.getElementById('date').value = formatDateForInput(new Date());
+    const dateInput = document.getElementById('date');
+    dateInput.value = formatDateForInput(new Date());
     document.getElementById('waketime').value = '08:00';
     document.getElementById('bedtime').value = '23:00';
+    
+    // Charger les données existantes si disponibles
+    loadExistingEntry(dateInput.value);
+}
+
+async function loadExistingEntry(date) {
+    const entry = await getEntryByDate(date);
+    if (entry) {
+        // Remplir le formulaire avec les données existantes
+        if (entry.waketime) document.getElementById('waketime').value = entry.waketime;
+        if (entry.bedtime) document.getElementById('bedtime').value = entry.bedtime;
+        document.getElementById('breakfast').value = entry.breakfast || 'yes';
+        document.getElementById('coffee').value = entry.coffee || 'no';
+        document.getElementById('coffeeCount').value = entry.coffeeCount || 1;
+        document.getElementById('coffee-count-group').style.display = entry.coffee === 'yes' ? 'block' : 'none';
+        document.getElementById('lunch').value = entry.lunch || 'meat';
+        document.getElementById('dinner').value = entry.dinner || 'fish';
+        document.getElementById('supplement').value = entry.supplement || 'yes';
+        document.getElementById('sport').value = entry.sport || 'yes';
+        document.getElementById('work').value = entry.work || 'yes';
+        document.getElementById('workLocation').value = entry.workLocation || 'remote';
+        document.getElementById('work-location-group').style.display = entry.work === 'yes' ? 'block' : 'none';
+        document.getElementById('outdoorTime').value = entry.outdoorTime || 0;
+        document.getElementById('steps').value = entry.steps || '';
+        document.getElementById('nap').value = entry.nap || 'no';
+        document.getElementById('stress').value = entry.stress || 3;
+        document.getElementById('rumination').value = entry.rumination || 1;
+        document.getElementById('sadness').value = entry.sadness || 1;
+        const dayQualityRadio = document.querySelector(`input[name="dayQuality"][value="${entry.dayQuality || 'sun'}"]`);
+        if (dayQualityRadio) dayQualityRadio.checked = true;
+        document.getElementById('eveningActivity').value = entry.eveningActivity || 'screen';
+        document.getElementById('awakenings').value = entry.awakenings || 3;
+        document.getElementById('awakeningDuration').value = entry.awakeningDuration || 5;
+        document.getElementById('stuffyNose').value = entry.stuffyNose || 'yes';
+        document.getElementById('sjsr').value = entry.sjsr || 'yes';
+        document.getElementById('quality').value = entry.quality || 5;
+        document.getElementById('energy').value = entry.energy || 5;
+        document.getElementById('dreams').value = entry.dreams || 'none';
+        document.getElementById('notes').value = entry.notes || '';
+        
+        // Mettre à jour les affichages des sliders
+        ['stress', 'rumination', 'sadness', 'quality', 'energy'].forEach(id => {
+            updateRangeDisplay(id, document.getElementById(id).value);
+        });
+    }
 }
 
 
