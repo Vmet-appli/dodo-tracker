@@ -276,6 +276,8 @@ function resetForm() {
 
 function setDefaultDate() {
     document.getElementById('date').value = formatDateForInput(new Date());
+    document.getElementById('waketime').value = '08:00';
+    document.getElementById('bedtime').value = '23:00';
 }
 
 
