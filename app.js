@@ -313,7 +313,7 @@ function initForm() {
             
             const yesterdayEntry = await getEntryByDate(yesterdayStr);
             if (yesterdayEntry && !yesterdayEntry.validated) {
-                showToast('⚠️ Validez d\'abord la journée du ' + formatDateDisplay(yesterdayStr), 'warning');
+                showToast('⚠️ Validez d\'abord la nuit du ' + formatDateDisplay(yesterdayStr), 'warning');
                 e.target.value = yesterdayStr;
                 loadExistingEntry(yesterdayStr);
                 return;
@@ -332,7 +332,7 @@ function initForm() {
         const entry = await saveCurrentEntry(true);
         
         if (entry && isEntryComplete(entry)) {
-            showToast('✅ Journée validée !', 'success');
+            showToast('✅ Nuit validée !', 'success');
             loadHistory();
             
             // Proposer de passer au jour suivant
