@@ -487,26 +487,37 @@ async function loadHistory() {
     });
 }
 
+function getQualityClass(value) {
+    if (value <= 3) return 'quality-low';
+    if (value <= 5) return 'quality-medium';
+    if (value <= 7) return 'quality-ok';
+    if (value <= 9) return 'quality-good';
+    return 'quality-excellent';
+}
+
 function createHistoryItem(entry) {
     const duration = calculateDuration(entry.bedtime, entry.waketime);
     const dateFormatted = formatDateDisplay(entry.date);
     const dayIcon = { sun: '☀️', cloud: '⛅', rain: '🌧️' }[entry.dayQuality] || '☀️';
+    const qualityClass = getQualityClass(entry.quality);
+    const energyClass = getQualityClass(entry.energy);
+    const validatedIcon = entry.validated ? '✓' : '⏳';
     
     return `
         <div class="history-item" data-id="${entry.id}">
             <div class="history-item-header">
-                <span class="history-date">📅 ${dateFormatted} ${dayIcon}</span>
+                <span class="history-date">📅 ${dateFormatted} ${dayIcon} ${validatedIcon}</span>
                 <div class="history-actions-item">
                     <button class="btn-icon btn-edit" data-id="${entry.id}" title="Modifier">✏️</button>
                     <button class="btn-icon btn-delete" data-id="${entry.id}" title="Supprimer">🗑️</button>
                 </div>
             </div>
             <div class="history-details">
-                <div class="history-detail"><span>🛏️</span><span>Coucher: ${entry.bedtime}</span></div>
-                <div class="history-detail"><span>⏰</span><span>Levé: ${entry.waketime}</span></div>
-                <div class="history-detail"><span>⏱️</span><span>Durée: ${duration}</span></div>
-                <div class="history-detail"><span>😴</span><span class="quality-${entry.quality}">Qualité: ${entry.quality}/10</span></div>
-                <div class="history-detail"><span>⚡</span><span class="quality-${entry.energy}">Énergie: ${entry.energy}/10</span></div>
+                <div class="history-detail"><span>🛏️</span><span>Coucher: ${entry.bedtime || '--'}</span></div>
+                <div class="history-detail"><span>⏰</span><span>Levé: ${entry.waketime || '--'}</span></div>
+                <div class="history-detail"><span>⏱️</span><span>Durée: ${entry.bedtime && entry.waketime ? duration : '--'}</span></div>
+                <div class="history-detail"><span>😴</span><span class="${qualityClass}">Qualité: ${entry.quality}/10</span></div>
+                <div class="history-detail"><span>⚡</span><span class="${energyClass}">Énergie: ${entry.energy}/10</span></div>
                 <div class="history-detail"><span>🔄</span><span>Réveils: ${entry.awakenings}</span></div>
                 <div class="history-detail"><span>😰</span><span>Stress: ${entry.stress}/5</span></div>
                 <div class="history-detail"><span>👣</span><span>Pas: ${entry.steps || 0}</span></div>
