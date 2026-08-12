@@ -210,9 +210,95 @@ function initConditionalFields() {
 // Champs obligatoires pour considérer une journée complète
 const REQUIRED_FIELDS = ['waketime', 'bedtime', 'quality', 'energy'];
 
+// Debounce pour éviter trop de sauvegardes
+let saveTimeout = null;
+function debouncedSave() {
+    if (saveTimeout) clearTimeout(saveTimeout);
+    saveTimeout = setTimeout(() => saveCurrentEntry(false), 500);
+}
+
+// Sauvegarde automatique de l'entrée courante
+async function saveCurrentEntry(isValidation = false) {
+    const date = document.getElementById('date').value;
+    if (!date) return;
+    
+    const existing = await getEntryByDate(date);
+    
+    const entry = {
+        id: existing?.id || generateId(),
+        date: date,
+        waketime: document.getElementById('waketime').value || null,
+        // Alimentation
+        breakfast: document.getElementById('breakfast').value,
+        coffee: document.getElementById('coffee').value,
+        coffeeCount: document.getElementById('coffee').value === 'yes' ? 
+            parseInt(document.getElementById('coffeeCount').value) : 0,
+        lunch: document.getElementById('lunch').value,
+        dinner: document.getElementById('dinner').value,
+        supplement: document.getElementById('supplement').value,
+        // Activité
+        sport: document.getElementById('sport').value,
+        work: document.getElementById('work').value,
+        workLocation: document.getElementById('work').value === 'yes' ? 
+            document.getElementById('workLocation').value : null,
+        outdoorTime: parseInt(document.getElementById('outdoorTime').value),
+        steps: parseInt(document.getElementById('steps').value) || 0,
+        nap: document.getElementById('nap').value,
+        // Bien-être mental
+        stress: parseInt(document.getElementById('stress').value),
+        rumination: parseInt(document.getElementById('rumination').value),
+        sadness: parseInt(document.getElementById('sadness').value),
+        dayQuality: document.querySelector('input[name="dayQuality"]:checked')?.value || 'sun',
+        // Sommeil
+        eveningActivity: document.getElementById('eveningActivity').value,
+        bedtime: document.getElementById('bedtime').value || null,
+        awakenings: parseInt(document.getElementById('awakenings').value),
+        awakeningDuration: parseInt(document.getElementById('awakenings').value) > 0 ?
+            parseInt(document.getElementById('awakeningDuration').value) : 0,
+        stuffyNose: document.getElementById('stuffyNose').value,
+        sjsr: document.getElementById('sjsr').value,
+        sjsrCount: document.getElementById('sjsr').value === 'yes' ?
+            parseInt(document.getElementById('sjsrCount').value) : 0,
+        // Bilan
+        quality: parseInt(document.getElementById('quality').value),
+        energy: parseInt(document.getElementById('energy').value),
+        dreams: document.getElementById('dreams').value,
+        notes: document.getElementById('notes').value.trim(),
+        validated: isValidation ? true : (existing?.validated || false),
+        createdAt: existing?.createdAt
+    };
+
+    try {
+        await saveEntry(entry);
+        if (!isValidation) {
+            // Sauvegarde silencieuse
+            console.log('Auto-sauvegarde:', date);
+        }
+        return entry;
+    } catch (error) {
+        console.error('Erreur auto-save:', error);
+        return null;
+    }
+}
+
 function initForm() {
     const form = document.getElementById('sleep-form');
     const dateInput = document.getElementById('date');
+    
+    // Ajouter la sauvegarde automatique sur tous les champs
+    const formInputs = form.querySelectorAll('input, select, textarea');
+    formInputs.forEach(input => {
+        if (input.id === 'date') return; // Date gérée séparément
+        
+        const eventType = (input.type === 'range' || input.type === 'text' || input.tagName === 'TEXTAREA') 
+            ? 'input' : 'change';
+        input.addEventListener(eventType, debouncedSave);
+    });
+    
+    // Sauvegarde aussi sur les radios
+    document.querySelectorAll('input[name="dayQuality"]').forEach(radio => {
+        radio.addEventListener('change', debouncedSave);
+    });
     
     // Vérifier la complétude de la journée précédente lors du changement de date
     dateInput.addEventListener('change', async (e) => {
@@ -226,8 +312,8 @@ function initForm() {
             const yesterdayStr = formatDateForInput(yesterday);
             
             const yesterdayEntry = await getEntryByDate(yesterdayStr);
-            if (yesterdayEntry && !isEntryComplete(yesterdayEntry)) {
-                showToast('⚠️ Complétez d\'abord la journée du ' + formatDateDisplay(yesterdayStr), 'warning');
+            if (yesterdayEntry && !yesterdayEntry.validated) {
+                showToast('⚠️ Validez d\'abord la journée du ' + formatDateDisplay(yesterdayStr), 'warning');
                 e.target.value = yesterdayStr;
                 loadExistingEntry(yesterdayStr);
                 return;
@@ -238,61 +324,29 @@ function initForm() {
         loadExistingEntry(newDate);
     });
     
+    // Le bouton Enregistrer sert maintenant à VALIDER la journée
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
-        const date = document.getElementById('date').value;
-        const existing = await getEntryByDate(date);
         
-        const entry = {
-            id: existing?.id || generateId(),
-            date: date,
-            waketime: document.getElementById('waketime').value || null,
-            // Alimentation
-            breakfast: document.getElementById('breakfast').value,
-            coffee: document.getElementById('coffee').value,
-            coffeeCount: document.getElementById('coffee').value === 'yes' ? 
-                parseInt(document.getElementById('coffeeCount').value) : 0,
-            lunch: document.getElementById('lunch').value,
-            dinner: document.getElementById('dinner').value,
-            supplement: document.getElementById('supplement').value,
-            // Activité
-            sport: document.getElementById('sport').value,
-            work: document.getElementById('work').value,
-            workLocation: document.getElementById('work').value === 'yes' ? 
-                document.getElementById('workLocation').value : null,
-            outdoorTime: parseInt(document.getElementById('outdoorTime').value),
-            steps: parseInt(document.getElementById('steps').value) || 0,
-            nap: document.getElementById('nap').value,
-            // Bien-être mental
-            stress: parseInt(document.getElementById('stress').value),
-            rumination: parseInt(document.getElementById('rumination').value),
-            sadness: parseInt(document.getElementById('sadness').value),
-            dayQuality: document.querySelector('input[name="dayQuality"]:checked').value,
-            // Sommeil
-            eveningActivity: document.getElementById('eveningActivity').value,
-            bedtime: document.getElementById('bedtime').value || null,
-            awakenings: parseInt(document.getElementById('awakenings').value),
-            awakeningDuration: parseInt(document.getElementById('awakenings').value) > 0 ?
-                parseInt(document.getElementById('awakeningDuration').value) : 0,
-            stuffyNose: document.getElementById('stuffyNose').value,
-            sjsr: document.getElementById('sjsr').value,
-            sjsrCount: document.getElementById('sjsr').value === 'yes' ?
-                parseInt(document.getElementById('sjsrCount').value) : 0,
-            // Bilan
-            quality: parseInt(document.getElementById('quality').value),
-            energy: parseInt(document.getElementById('energy').value),
-            dreams: document.getElementById('dreams').value,
-            notes: document.getElementById('notes').value.trim(),
-            createdAt: existing?.createdAt
-        };
-
-        try {
-            await saveEntry(entry);
-            showToast(existing ? '✅ Entrée mise à jour !' : '✅ Enregistré !', 'success');
+        const date = document.getElementById('date').value;
+        const entry = await saveCurrentEntry(true);
+        
+        if (entry && isEntryComplete(entry)) {
+            showToast('✅ Journée validée !', 'success');
             loadHistory();
-        } catch (error) {
-            console.error('Erreur:', error);
-            showToast('❌ Erreur lors de la sauvegarde', 'error');
+            
+            // Proposer de passer au jour suivant
+            const tomorrow = new Date(date);
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const tomorrowStr = formatDateForInput(tomorrow);
+            const today = formatDateForInput(new Date());
+            
+            if (tomorrowStr <= today) {
+                document.getElementById('date').value = tomorrowStr;
+                loadExistingEntry(tomorrowStr);
+            }
+        } else {
+            showToast('⚠️ Complétez les champs obligatoires (levé, coucher, qualité, énergie)', 'warning');
         }
     });
 }
@@ -608,8 +662,8 @@ async function updateStats() {
     const period = document.getElementById('stats-period').value;
     let entries = await getAllEntries();
     
-    // Exclure les entrées incomplètes (journée en cours non terminée)
-    entries = entries.filter(e => isEntryComplete(e));
+    // Exclure les entrées non validées
+    entries = entries.filter(e => e.validated === true);
 
     if (period !== 'all') {
         const daysAgo = parseInt(period);
