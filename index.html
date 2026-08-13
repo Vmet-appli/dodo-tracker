@@ -101,22 +101,61 @@
                         </select>
                     </div>
                     <div class="form-group">
-                        <label for="supplement">💊 Complément alimentaire</label>
-                        <select id="supplement">
-                            <option value="no">Non</option>
-                            <option value="yes" selected>Oui</option>
-                        </select>
+                        <label for="supplement">💊 Compléments alimentaires</label>
+                        <div class="supplements-grid">
+                            <label class="supplement-checkbox">
+                                <input type="checkbox" id="supp-magnesium" checked>
+                                <span>Magnésium</span>
+                            </label>
+                            <label class="supplement-checkbox">
+                                <input type="checkbox" id="supp-creatine" checked>
+                                <span>Créatine</span>
+                            </label>
+                            <label class="supplement-checkbox">
+                                <input type="checkbox" id="supp-omega3" checked>
+                                <span>Oméga 3</span>
+                            </label>
+                            <label class="supplement-checkbox">
+                                <input type="checkbox" id="supp-glutamine" checked>
+                                <span>Glutamine</span>
+                            </label>
+                            <label class="supplement-checkbox">
+                                <input type="checkbox" id="supp-kefir" checked>
+                                <span>Kéfir</span>
+                            </label>
+                        </div>
                     </div>
 
                     <h2 class="section-title">🏃 Activité</h2>
+                    <div class="form-group">
+                        <label for="sport">🏋️ Sport / Powerlifting</label>
+                        <select id="sport">
+                            <option value="no">Non</option>
+                            <option value="light">Léger (marche, yoga)</option>
+                            <option value="moderate">Modéré (cardio, fitness)</option>
+                            <option value="intense" selected>Intense (powerlifting, musculation)</option>
+                        </select>
+                    </div>
+                    <div class="form-group conditional" id="sport-duration-group">
+                        <label for="sportDuration">⏱️ Durée de l'entraînement</label>
+                        <select id="sportDuration">
+                            <option value="30">~30 min</option>
+                            <option value="60">~1h</option>
+                            <option value="90">~1h30</option>
+                            <option value="120" selected>~2h</option>
+                            <option value="150">2h+</option>
+                        </select>
+                    </div>
+                    <div class="form-group conditional" id="sport-time-group">
+                        <label for="sportTime">🕐 Heure de l'entraînement</label>
+                        <select id="sportTime">
+                            <option value="morning">Matin (avant 12h)</option>
+                            <option value="afternoon">Après-midi (12h-17h)</option>
+                            <option value="evening" selected>Soirée (17h-20h)</option>
+                            <option value="late">Tard (après 20h)</option>
+                        </select>
+                    </div>
                     <div class="form-row">
-                        <div class="form-group">
-                            <label for="sport">Sport</label>
-                            <select id="sport">
-                                <option value="no">Non</option>
-                                <option value="yes" selected>Oui</option>
-                            </select>
-                        </div>
                         <div class="form-group">
                             <label for="work">Travail</label>
                             <select id="work">
@@ -124,13 +163,13 @@
                                 <option value="yes" selected>Oui</option>
                             </select>
                         </div>
-                    </div>
-                    <div class="form-group conditional" id="work-location-group">
-                        <label for="workLocation">📍 Lieu de travail</label>
-                        <select id="workLocation">
-                            <option value="office">Sur site</option>
-                            <option value="remote" selected>Télétravail</option>
-                        </select>
+                        <div class="form-group">
+                            <label for="workLocation">📍 Lieu</label>
+                            <select id="workLocation">
+                                <option value="office">Sur site</option>
+                                <option value="remote" selected>Télétravail</option>
+                            </select>
+                        </div>
                     </div>
                     <div class="form-group">
                         <label for="outdoorTime">☀️ Temps passé à l'extérieur</label>
@@ -152,6 +191,27 @@
                         <select id="nap">
                             <option value="no">Non</option>
                             <option value="yes">Oui</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="screenTime">📱 Temps d'écran total (journée)</label>
+                        <select id="screenTime">
+                            <option value="1">Moins d'1h</option>
+                            <option value="2">1-2h</option>
+                            <option value="4" selected>2-4h</option>
+                            <option value="6">4-6h</option>
+                            <option value="8">6-8h</option>
+                            <option value="10">8h+</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="hydration">💧 Hydratation (eau)</label>
+                        <select id="hydration">
+                            <option value="0.5">Moins de 0.5L</option>
+                            <option value="1">0.5 - 1L</option>
+                            <option value="1.5" selected>1 - 1.5L</option>
+                            <option value="2">1.5 - 2L</option>
+                            <option value="2.5">2L+</option>
                         </select>
                     </div>
 
@@ -279,6 +339,33 @@
                             <option value="5">5+ fois</option>
                         </select>
                     </div>
+                    <div class="form-group">
+                        <label for="roomTemp">🌡️ Température chambre</label>
+                        <select id="roomTemp">
+                            <option value="cold">Trop froid</option>
+                            <option value="ok" selected>Correcte</option>
+                            <option value="hot">Trop chaud</option>
+                        </select>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="noise">🔊 Bruit</label>
+                            <select id="noise">
+                                <option value="none" selected>Aucun</option>
+                                <option value="light">Léger</option>
+                                <option value="moderate">Modéré</option>
+                                <option value="loud">Fort</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="darkness">🌑 Obscurité</label>
+                            <select id="darkness">
+                                <option value="dark" selected>Noire</option>
+                                <option value="dim">Pénombre</option>
+                                <option value="light">Lumineuse</option>
+                            </select>
+                        </div>
+                    </div>
 
                     <h2 class="section-title">⭐ Bilan</h2>
                     <div class="form-group">
@@ -319,6 +406,12 @@
                         <textarea id="notes" rows="3" placeholder="Événements particuliers, remarques..."></textarea>
                     </div>
                     <button type="submit" class="btn-primary">✅ Valider la nuit</button>
+                    
+                    <!-- Conseils personnalisés -->
+                    <div id="tips-section" class="tips-section">
+                        <h3>💡 Conseils personnalisés</h3>
+                        <div id="tips-content"></div>
+                    </div>
                 </form>
             </section>
 
