@@ -135,6 +135,34 @@ body {
     gap: 16px;
 }
 
+/* Bandeau date */
+.date-banner {
+    background: var(--surface);
+    border: 1px solid var(--border-color);
+    border-radius: var(--radius-sm);
+    padding: 16px;
+    text-align: center;
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin-bottom: 8px;
+}
+
+.date-banner.late {
+    background: rgba(239, 68, 68, 0.15);
+    border-color: var(--danger-color);
+    color: var(--danger-color);
+}
+
+.date-banner.late::before {
+    content: "⚠️ ";
+}
+
+.date-banner.today {
+    background: rgba(34, 197, 94, 0.15);
+    border-color: var(--success-color);
+    color: var(--success-color);
+}
+
 /* Titres de section */
 .section-title {
     font-size: 1.1rem;

@@ -283,12 +283,11 @@ async function saveCurrentEntry(isValidation = false) {
 
 function initForm() {
     const form = document.getElementById('sleep-form');
-    const dateInput = document.getElementById('date');
     
     // Ajouter la sauvegarde automatique sur tous les champs
     const formInputs = form.querySelectorAll('input, select, textarea');
     formInputs.forEach(input => {
-        if (input.id === 'date') return; // Date gérée séparément
+        if (input.id === 'date') return; // Date gérée automatiquement
         
         const eventType = (input.type === 'range' || input.type === 'text' || input.tagName === 'TEXTAREA') 
             ? 'input' : 'change';
@@ -300,31 +299,7 @@ function initForm() {
         radio.addEventListener('change', debouncedSave);
     });
     
-    // Vérifier la complétude de la journée précédente lors du changement de date
-    dateInput.addEventListener('change', async (e) => {
-        const newDate = e.target.value;
-        const today = formatDateForInput(new Date());
-        
-        // Si on change pour une date future ou la date du jour, vérifier les jours précédents
-        if (newDate >= today) {
-            const yesterday = new Date();
-            yesterday.setDate(yesterday.getDate() - 1);
-            const yesterdayStr = formatDateForInput(yesterday);
-            
-            const yesterdayEntry = await getEntryByDate(yesterdayStr);
-            if (yesterdayEntry && !yesterdayEntry.validated) {
-                showToast('⚠️ Validez d\'abord la nuit du ' + formatDateDisplay(yesterdayStr), 'warning');
-                e.target.value = yesterdayStr;
-                loadExistingEntry(yesterdayStr);
-                return;
-            }
-        }
-        
-        // Charger les données existantes pour la nouvelle date
-        loadExistingEntry(newDate);
-    });
-    
-    // Le bouton Enregistrer sert maintenant à VALIDER la journée
+    // Le bouton Enregistrer sert maintenant à VALIDER la nuit
     form.addEventListener('submit', async (e) => {
         e.preventDefault();
         
@@ -335,16 +310,11 @@ function initForm() {
             showToast('✅ Nuit validée !', 'success');
             loadHistory();
             
-            // Proposer de passer au jour suivant
-            const tomorrow = new Date(date);
-            tomorrow.setDate(tomorrow.getDate() + 1);
-            const tomorrowStr = formatDateForInput(tomorrow);
-            const today = formatDateForInput(new Date());
-            
-            if (tomorrowStr <= today) {
-                document.getElementById('date').value = tomorrowStr;
-                loadExistingEntry(tomorrowStr);
-            }
+            // Passer automatiquement à la prochaine nuit à compléter
+            const nextDate = await findNextEntryToComplete();
+            document.getElementById('date').value = nextDate;
+            updateDateBanner(nextDate);
+            loadExistingEntry(nextDate);
         } else {
             showToast('⚠️ Complétez les champs obligatoires (levé, coucher, qualité, énergie)', 'warning');
         }
@@ -376,13 +346,65 @@ function resetForm() {
 }
 
 function setDefaultDate() {
-    const dateInput = document.getElementById('date');
-    dateInput.value = formatDateForInput(new Date());
-    document.getElementById('waketime').value = '08:00';
-    document.getElementById('bedtime').value = '23:00';
+    // Trouver la première nuit non validée à compléter
+    findNextEntryToComplete().then(date => {
+        document.getElementById('date').value = date;
+        updateDateBanner(date);
+        loadExistingEntry(date);
+    });
+}
+
+async function findNextEntryToComplete() {
+    const entries = await getAllEntries();
+    const today = formatDateForInput(new Date());
     
-    // Charger les données existantes si disponibles
-    loadExistingEntry(dateInput.value);
+    // Chercher la première date non validée en partant du passé
+    // On remonte jusqu'à 30 jours en arrière max
+    for (let i = 30; i >= 0; i--) {
+        const checkDate = new Date();
+        checkDate.setDate(checkDate.getDate() - i);
+        const dateStr = formatDateForInput(checkDate);
+        
+        // Ne pas aller au-delà d'aujourd'hui
+        if (dateStr > today) continue;
+        
+        const entry = entries.find(e => e.date === dateStr);
+        
+        // Si pas d'entrée ou entrée non validée, c'est celle-ci
+        if (!entry || !entry.validated) {
+            return dateStr;
+        }
+    }
+    
+    // Si tout est validé, retourner aujourd'hui
+    return today;
+}
+
+function updateDateBanner(date) {
+    const banner = document.getElementById('date-banner');
+    const display = document.getElementById('current-date-display');
+    const today = formatDateForInput(new Date());
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    const yesterdayStr = formatDateForInput(yesterday);
+    
+    const dateFormatted = formatDateDisplay(date);
+    
+    banner.classList.remove('late', 'today');
+    
+    if (date === today) {
+        display.textContent = `📅 ${dateFormatted} (aujourd'hui)`;
+        banner.classList.add('today');
+    } else if (date === yesterdayStr) {
+        display.textContent = `📅 ${dateFormatted} (hier - à compléter)`;
+        banner.classList.add('late');
+    } else if (date < today) {
+        const daysLate = Math.floor((new Date(today) - new Date(date)) / (1000 * 60 * 60 * 24));
+        display.textContent = `📅 ${dateFormatted} (${daysLate} jours en retard)`;
+        banner.classList.add('late');
+    } else {
+        display.textContent = `📅 ${dateFormatted}`;
+    }
 }
 
 async function loadExistingEntry(date) {

@@ -42,10 +42,13 @@
             <section id="saisie" class="tab-content active">
                 <form id="sleep-form" class="sleep-form">
                     <h2 class="section-title">📅 Informations générales</h2>
-                    <div class="form-group">
-                        <label for="date">Date</label>
-                        <input type="date" id="date" required>
+                    
+                    <!-- Bandeau date et statut -->
+                    <div id="date-banner" class="date-banner">
+                        <span id="current-date-display"></span>
                     </div>
+                    <input type="hidden" id="date">
+                    
                     <div class="form-group">
                         <label for="waketime">⏰ Heure du levé</label>
                         <input type="time" id="waketime">
