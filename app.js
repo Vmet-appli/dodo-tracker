@@ -763,7 +763,7 @@ async function updateStats() {
         return;
     }
 
-    const totalDuration = entries.reduce((sum, e) => sum + calculateDurationMinutes(e.bedtime, e.waketime), 0);
+    const totalDuration = entries.reduce((sum, e) => sum + calculateEffectiveSleepMinutes(e), 0);
     const avgDuration = totalDuration / entries.length;
     const avgQuality = entries.reduce((sum, e) => sum + e.quality, 0) / entries.length;
     const avgEnergy = entries.reduce((sum, e) => sum + e.energy, 0) / entries.length;
@@ -787,7 +787,7 @@ function updateCharts(entries) {
     const labels = entries.map(e => formatDateShort(e.date));
     const qualityData = entries.map(e => e.quality);
     const energyData = entries.map(e => e.energy);
-    const durationData = entries.map(e => calculateDurationMinutes(e.bedtime, e.waketime) / 60);
+    const durationData = entries.map(e => calculateEffectiveSleepMinutes(e) / 60);
     const bedtimeData = entries.map(e => timeToDecimal(e.bedtime));
 
     const chartOptions = {
@@ -958,6 +958,23 @@ function calculateDurationMinutes(bedtime, waketime) {
     let wakeMinutes = wakeH * 60 + wakeM;
     if (wakeMinutes < bedMinutes) wakeMinutes += 24 * 60;
     return wakeMinutes - bedMinutes;
+}
+
+// Calcule le temps de sommeil effectif (durée totale - temps éveillé)
+function calculateEffectiveSleepMinutes(entry) {
+    if (!entry.bedtime || !entry.waketime) return 0;
+    
+    const totalMinutes = calculateDurationMinutes(entry.bedtime, entry.waketime);
+    
+    // Temps passé éveillé = nombre de réveils × durée moyenne des réveils
+    const awakenings = entry.awakenings || 0;
+    const awakeningDuration = entry.awakeningDuration || 0; // en minutes
+    const timeAwake = awakenings * awakeningDuration;
+    
+    // Temps effectif de sommeil
+    const effectiveMinutes = totalMinutes - timeAwake;
+    
+    return Math.max(0, effectiveMinutes); // Ne pas retourner de valeur négative
 }
 
 function formatDuration(minutes) {
@@ -1175,8 +1192,8 @@ async function generateSmartTips() {
         }
     }
     
-    // Analyse dette de sommeil
-    const avgDuration = recent.reduce((sum, e) => sum + calculateDurationMinutes(e.bedtime, e.waketime), 0) / recent.length;
+    // Analyse dette de sommeil (utilise le temps effectif)
+    const avgDuration = recent.reduce((sum, e) => sum + calculateEffectiveSleepMinutes(e), 0) / recent.length;
     if (avgDuration < 390 && recent.length >= 3) { // Moins de 6h30 en moyenne
         const avgQuality = recent.reduce((sum, e) => sum + e.quality, 0) / recent.length;
         if (avgQuality < 5) {
