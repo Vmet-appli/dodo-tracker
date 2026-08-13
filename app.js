@@ -769,8 +769,8 @@ async function updateStats() {
     const avgEnergy = entries.reduce((sum, e) => sum + e.energy, 0) / entries.length;
 
     document.getElementById('avg-duration').textContent = formatDuration(avgDuration);
-    document.getElementById('avg-quality').textContent = avgQuality.toFixed(1) + '/5';
-    document.getElementById('avg-energy').textContent = avgEnergy.toFixed(1) + '/5';
+    document.getElementById('avg-quality').textContent = avgQuality.toFixed(1) + '/10';
+    document.getElementById('avg-energy').textContent = avgEnergy.toFixed(1) + '/10';
     document.getElementById('total-entries').textContent = entries.length;
 
     updateCharts(entries);
