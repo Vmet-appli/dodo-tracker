@@ -673,8 +673,8 @@ async function updateStats() {
     const period = document.getElementById('stats-period').value;
     let entries = await getAllEntries();
     
-    // Exclure les entrées non validées
-    entries = entries.filter(e => e.validated === true);
+    // Inclure les entrées validées OU les entrées complètes (rétrocompatibilité)
+    entries = entries.filter(e => e.validated === true || (isEntryComplete(e) && e.validated === undefined));
 
     if (period !== 'all') {
         const daysAgo = parseInt(period);
