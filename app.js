@@ -416,6 +416,9 @@ function updateDateBanner(date) {
     yesterday.setDate(yesterday.getDate() - 1);
     const yesterdayStr = formatDateForInput(yesterday);
     
+    // Date de début de l'app - pas de retard avant cette date
+    const appStartDate = '2026-08-11';
+    
     const dateFormatted = formatDateDisplay(date);
     
     banner.classList.remove('late', 'today');
@@ -423,12 +426,12 @@ function updateDateBanner(date) {
     if (date === today) {
         display.textContent = `📅 ${dateFormatted} (aujourd'hui)`;
         banner.classList.add('today');
-    } else if (date === yesterdayStr) {
+    } else if (date === yesterdayStr && date >= appStartDate) {
         display.textContent = `📅 ${dateFormatted} (hier - à compléter)`;
         banner.classList.add('late');
-    } else if (date < today) {
+    } else if (date < today && date >= appStartDate) {
         const daysLate = Math.floor((new Date(today) - new Date(date)) / (1000 * 60 * 60 * 24));
-        display.textContent = `📅 ${dateFormatted} (${daysLate} jours en retard)`;
+        display.textContent = `📅 ${dateFormatted} (${daysLate} jour${daysLate > 1 ? 's' : ''} en retard)`;
         banner.classList.add('late');
     } else {
         display.textContent = `📅 ${dateFormatted}`;
