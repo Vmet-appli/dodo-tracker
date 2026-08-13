@@ -183,11 +183,13 @@ function initConditionalFields() {
             e.target.value === 'yes' ? 'block' : 'none';
     });
     
-    // Sport -> durée et heure
+    // Sport -> durée, heure et type de semaine
     document.getElementById('sport').addEventListener('change', (e) => {
         const showSportDetails = e.target.value !== 'no';
+        const showPowerliftingDetails = e.target.value === 'intense';
         document.getElementById('sport-duration-group').style.display = showSportDetails ? 'block' : 'none';
         document.getElementById('sport-time-group').style.display = showSportDetails ? 'block' : 'none';
+        document.getElementById('sport-week-group').style.display = showPowerliftingDetails ? 'block' : 'none';
     });
     
     // Réveils -> durée des réveils
@@ -249,6 +251,8 @@ async function saveCurrentEntry(isValidation = false) {
             parseInt(document.getElementById('sportDuration').value) : 0,
         sportTime: document.getElementById('sport').value !== 'no' ? 
             document.getElementById('sportTime').value : null,
+        sportWeekType: document.getElementById('sport').value === 'intense' ? 
+            document.getElementById('sportWeekType').value : null,
         work: document.getElementById('work').value,
         workLocation: document.getElementById('work').value === 'yes' ? 
             document.getElementById('workLocation').value : null,
@@ -455,9 +459,12 @@ async function loadExistingEntry(date) {
         document.getElementById('sport').value = entry.sport || 'intense';
         document.getElementById('sportDuration').value = entry.sportDuration || 120;
         document.getElementById('sportTime').value = entry.sportTime || 'evening';
+        document.getElementById('sportWeekType').value = entry.sportWeekType || 'intensity';
         const showSportDetails = (entry.sport || 'intense') !== 'no';
+        const showPowerliftingDetails = (entry.sport || 'intense') === 'intense';
         document.getElementById('sport-duration-group').style.display = showSportDetails ? 'block' : 'none';
         document.getElementById('sport-time-group').style.display = showSportDetails ? 'block' : 'none';
+        document.getElementById('sport-week-group').style.display = showPowerliftingDetails ? 'block' : 'none';
         document.getElementById('work').value = entry.work || 'yes';
         document.getElementById('workLocation').value = entry.workLocation || 'remote';
         document.getElementById('work-location-group').style.display = (entry.work || 'yes') === 'yes' ? 'block' : 'none';
@@ -1128,6 +1135,38 @@ async function generateSmartTips() {
                     title: 'Récupération système nerveux',
                     content: `Séances de 2h+ de powerlifting avec ${avgAwakeningsLong.toFixed(1)} réveils en moyenne. L'entraînement lourd stimule fortement le système nerveux sympathique. La variabilité cardiaque (HRV) peut rester perturbée 24-48h. Considérez : magnésium glycinate le soir, respiration 4-7-8, éviter les écrans post-entraînement.`,
                     source: 'Journal of Strength & Conditioning Research, Chen et al. 2019'
+                });
+            }
+        }
+        
+        // Analyse par type de semaine
+        const peakWeeks = intenseWorkouts.filter(e => e.sportWeekType === 'peak' || e.sportWeekType === 'test');
+        if (peakWeeks.length >= 1) {
+            const avgQualityPeak = peakWeeks.reduce((sum, e) => sum + e.quality, 0) / peakWeeks.length;
+            const avgAwakeningsPeak = peakWeeks.reduce((sum, e) => sum + e.awakenings, 0) / peakWeeks.length;
+            if (avgQualityPeak < 6 || avgAwakeningsPeak >= 4) {
+                tips.push({
+                    type: 'science',
+                    icon: '🏆',
+                    title: 'Semaines peak/test et sommeil',
+                    content: `Qualité ${avgQualityPeak.toFixed(1)}/10 et ${avgAwakeningsPeak.toFixed(1)} réveils en semaine peak. Les charges maximales créent un stress important sur le système nerveux central (SNC). Le SNC récupère principalement pendant le sommeil profond. Priorisez : coucher plus tôt, éviter stimulants après 14h, sieste de 20min si possible.`,
+                    source: 'Strength & Conditioning Journal, Halson 2014'
+                });
+            }
+        }
+        
+        const deloadWeeks = intenseWorkouts.filter(e => e.sportWeekType === 'deload');
+        const nonDeloadWeeks = intenseWorkouts.filter(e => e.sportWeekType !== 'deload' && e.sportWeekType);
+        if (deloadWeeks.length >= 1 && nonDeloadWeeks.length >= 2) {
+            const avgQualityDeload = deloadWeeks.reduce((sum, e) => sum + e.quality, 0) / deloadWeeks.length;
+            const avgQualityIntense = nonDeloadWeeks.reduce((sum, e) => sum + e.quality, 0) / nonDeloadWeeks.length;
+            if (avgQualityDeload > avgQualityIntense + 0.5) {
+                tips.push({
+                    type: 'insight',
+                    icon: '📉',
+                    title: 'Deload et récupération',
+                    content: `Qualité sommeil ${avgQualityDeload.toFixed(1)}/10 en deload vs ${avgQualityIntense.toFixed(1)}/10 en semaines intenses. C'est normal ! Les semaines de deload permettent au SNC de récupérer. Si vous dormez mal en semaines intenses, c'est peut-être un signe de surmenage - envisagez des deloads plus fréquents.`,
+                    source: 'Sports Medicine, Pritchard et al. 2015'
                 });
             }
         }
