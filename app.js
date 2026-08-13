@@ -379,22 +379,25 @@ async function findNextEntryToComplete() {
     const entries = await getAllEntries();
     const today = formatDateForInput(new Date());
     
-    // Chercher la première date non validée en partant du passé
-    // On remonte jusqu'à 30 jours en arrière max
-    for (let i = 30; i >= 0; i--) {
-        const checkDate = new Date();
-        checkDate.setDate(checkDate.getDate() - i);
-        const dateStr = formatDateForInput(checkDate);
-        
-        // Ne pas aller au-delà d'aujourd'hui
-        if (dateStr > today) continue;
-        
+    // Date de début de l'application - ne pas chercher avant
+    const appStartDate = '2025-08-11';
+    
+    // Chercher la première date non validée en partant de la date de début
+    const startDate = new Date(appStartDate);
+    const todayDate = new Date(today);
+    
+    // Parcourir du début jusqu'à aujourd'hui
+    let currentDate = new Date(startDate);
+    while (currentDate <= todayDate) {
+        const dateStr = formatDateForInput(currentDate);
         const entry = entries.find(e => e.date === dateStr);
         
         // Si pas d'entrée ou entrée non validée, c'est celle-ci
         if (!entry || !entry.validated) {
             return dateStr;
         }
+        
+        currentDate.setDate(currentDate.getDate() + 1);
     }
     
     // Si tout est validé, retourner aujourd'hui
