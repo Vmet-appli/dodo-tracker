@@ -384,7 +384,7 @@ async function findNextEntryToComplete() {
     const today = formatDateForInput(new Date());
     
     // Date de début de l'application - ne pas chercher avant
-    const appStartDate = '2025-08-11';
+    const appStartDate = '2026-08-11';
     
     // Chercher la première date non validée en partant de la date de début
     const startDate = new Date(appStartDate);
