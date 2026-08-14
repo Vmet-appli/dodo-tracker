@@ -755,6 +755,7 @@ async function updateStats() {
     entries = entries.sort((a, b) => new Date(a.date) - new Date(b.date));
 
     if (entries.length === 0) {
+        document.getElementById('avg-bed-time').textContent = '--';
         document.getElementById('avg-duration').textContent = '--';
         document.getElementById('avg-quality').textContent = '--';
         document.getElementById('avg-energy').textContent = '--';
@@ -763,11 +764,17 @@ async function updateStats() {
         return;
     }
 
+    // Temps au lit (coucher → lever)
+    const totalBedTime = entries.reduce((sum, e) => sum + calculateDurationMinutes(e.bedtime, e.waketime), 0);
+    const avgBedTime = totalBedTime / entries.length;
+    
+    // Temps de sommeil effectif (temps au lit - temps éveillé)
     const totalDuration = entries.reduce((sum, e) => sum + calculateEffectiveSleepMinutes(e), 0);
     const avgDuration = totalDuration / entries.length;
     const avgQuality = entries.reduce((sum, e) => sum + e.quality, 0) / entries.length;
     const avgEnergy = entries.reduce((sum, e) => sum + e.energy, 0) / entries.length;
 
+    document.getElementById('avg-bed-time').textContent = formatDuration(avgBedTime);
     document.getElementById('avg-duration').textContent = formatDuration(avgDuration);
     document.getElementById('avg-quality').textContent = avgQuality.toFixed(1) + '/10';
     document.getElementById('avg-energy').textContent = avgEnergy.toFixed(1) + '/10';
