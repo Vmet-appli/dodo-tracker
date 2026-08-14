@@ -309,16 +309,9 @@ function initForm() {
     formInputs.forEach(input => {
         if (input.id === 'date') return; // Date gérée automatiquement
         
-        // input pour les champs texte/range/number (sauvegarde pendant la frappe)
-        // change pour les select et autres
-        const eventType = (input.type === 'range' || input.type === 'text' || input.type === 'number' || input.type === 'time' || input.tagName === 'TEXTAREA') 
-            ? 'input' : 'change';
-        input.addEventListener(eventType, debouncedSave);
-        
-        // Aussi écouter 'change' pour les champs number/time (quand on perd le focus)
-        if (input.type === 'number' || input.type === 'time') {
-            input.addEventListener('change', debouncedSave);
-        }
+        // Écouter à la fois 'input' et 'change' pour couvrir tous les cas
+        input.addEventListener('input', debouncedSave);
+        input.addEventListener('change', debouncedSave);
     });
     
     // Sauvegarde aussi sur les radios
