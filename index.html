@@ -477,17 +477,137 @@
                         <div class="stat-label">Nuits enregistrées</div>
                     </div>
                 </div>
+                
+                <!-- Stats avancées -->
+                <div class="advanced-stats">
+                    <h3>📊 Efficacité du sommeil</h3>
+                    <div class="stats-detail-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Efficacité</span>
+                            <span class="stat-detail-value" id="sleep-efficiency">--%</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Réveils/nuit</span>
+                            <span class="stat-detail-value" id="avg-awakenings">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Durée réveils</span>
+                            <span class="stat-detail-value" id="avg-awakening-duration">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Temps perdu</span>
+                            <span class="stat-detail-value" id="time-lost">--</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>🏋️ Impact du sport</h3>
+                    <div class="stats-detail-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Avec sport</span>
+                            <span class="stat-detail-value" id="quality-with-sport">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Sans sport</span>
+                            <span class="stat-detail-value" id="quality-without-sport">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Deload</span>
+                            <span class="stat-detail-value" id="quality-deload">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Peak/Test</span>
+                            <span class="stat-detail-value" id="quality-peak">--/10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>🦵 Tendances SJSR</h3>
+                    <div class="stats-detail-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Fréquence</span>
+                            <span class="stat-detail-value" id="sjsr-frequency">--%</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Épisodes/nuit</span>
+                            <span class="stat-detail-value" id="sjsr-avg-count">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">+ Magnésium</span>
+                            <span class="stat-detail-value" id="sjsr-with-magnesium">--%</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">- Magnésium</span>
+                            <span class="stat-detail-value" id="sjsr-without-magnesium">--%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>📱 Corrélations</h3>
+                    <div class="stats-detail-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Stress élevé</span>
+                            <span class="stat-detail-value" id="quality-high-stress">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Stress bas</span>
+                            <span class="stat-detail-value" id="quality-low-stress">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Écran +4h</span>
+                            <span class="stat-detail-value" id="quality-high-screen">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Écran -2h</span>
+                            <span class="stat-detail-value" id="quality-low-screen">--/10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>📅 Patterns par jour</h3>
+                    <div class="stats-detail-grid week-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Lun</span>
+                            <span class="stat-detail-value" id="quality-monday">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Mar</span>
+                            <span class="stat-detail-value" id="quality-tuesday">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Mer</span>
+                            <span class="stat-detail-value" id="quality-wednesday">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Jeu</span>
+                            <span class="stat-detail-value" id="quality-thursday">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Ven</span>
+                            <span class="stat-detail-value" id="quality-friday">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Sam</span>
+                            <span class="stat-detail-value" id="quality-saturday">--</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Dim</span>
+                            <span class="stat-detail-value" id="quality-sunday">--</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="chart-container">
-                    <h3>📈 Qualité du sommeil & Énergie</h3>
+                    <h3>📈 Évolution qualité & énergie</h3>
                     <canvas id="quality-chart"></canvas>
                 </div>
                 <div class="chart-container">
-                    <h3>⏰ Durée de sommeil</h3>
+                    <h3>⏱️ Évolution sommeil effectif</h3>
                     <canvas id="duration-chart"></canvas>
-                </div>
-                <div class="chart-container">
-                    <h3>🕐 Heures de coucher</h3>
-                    <canvas id="bedtime-chart"></canvas>
                 </div>
             </section>
         </main>

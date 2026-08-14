@@ -848,3 +848,68 @@ input[type="range"]::-moz-range-thumb {
         grid-template-columns: 1fr;
     }
 }
+
+
+/* Advanced stats sections */
+.advanced-stats {
+    background: var(--surface);
+    border-radius: var(--radius);
+    padding: 16px;
+    margin-bottom: 16px;
+}
+
+.advanced-stats h3 {
+    font-size: 1rem;
+    margin-bottom: 12px;
+    color: var(--text-primary);
+}
+
+.stats-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.stats-detail-grid.week-grid {
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+}
+
+.stat-detail {
+    background: var(--surface-light);
+    padding: 10px;
+    border-radius: var(--radius-sm);
+    text-align: center;
+}
+
+.stat-detail-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--text-secondary);
+    margin-bottom: 4px;
+}
+
+.stat-detail-value {
+    display: block;
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.stat-detail-value.good {
+    color: var(--success-color);
+}
+
+.stat-detail-value.warning {
+    color: var(--warning-color);
+}
+
+.stat-detail-value.bad {
+    color: var(--danger-color);
+}
+
+@media (max-width: 400px) {
+    .stats-detail-grid.week-grid {
+        grid-template-columns: repeat(4, 1fr);
+    }
+}

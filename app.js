@@ -760,15 +760,14 @@ async function updateStats() {
         document.getElementById('avg-quality').textContent = '--';
         document.getElementById('avg-energy').textContent = '--';
         document.getElementById('total-entries').textContent = '0';
+        resetAdvancedStats();
         clearCharts();
         return;
     }
 
-    // Temps au lit (coucher → lever)
+    // === Stats de base ===
     const totalBedTime = entries.reduce((sum, e) => sum + calculateDurationMinutes(e.bedtime, e.waketime), 0);
     const avgBedTime = totalBedTime / entries.length;
-    
-    // Temps de sommeil effectif (temps au lit - temps éveillé)
     const totalDuration = entries.reduce((sum, e) => sum + calculateEffectiveSleepMinutes(e), 0);
     const avgDuration = totalDuration / entries.length;
     const avgQuality = entries.reduce((sum, e) => sum + e.quality, 0) / entries.length;
@@ -780,7 +779,110 @@ async function updateStats() {
     document.getElementById('avg-energy').textContent = avgEnergy.toFixed(1) + '/10';
     document.getElementById('total-entries').textContent = entries.length;
 
+    // === Efficacité du sommeil ===
+    const sleepEfficiency = avgBedTime > 0 ? (avgDuration / avgBedTime * 100) : 0;
+    const avgAwakenings = entries.reduce((sum, e) => sum + (e.awakenings || 0), 0) / entries.length;
+    const entriesWithAwakenings = entries.filter(e => e.awakenings > 0 && e.awakeningDuration > 0);
+    const avgAwakeningDuration = entriesWithAwakenings.length > 0 
+        ? entriesWithAwakenings.reduce((sum, e) => sum + e.awakeningDuration, 0) / entriesWithAwakenings.length 
+        : 0;
+    const avgTimeLost = avgAwakenings * avgAwakeningDuration;
+
+    document.getElementById('sleep-efficiency').textContent = sleepEfficiency.toFixed(0) + '%';
+    document.getElementById('avg-awakenings').textContent = avgAwakenings.toFixed(1);
+    document.getElementById('avg-awakening-duration').textContent = avgAwakeningDuration.toFixed(0) + ' min';
+    document.getElementById('time-lost').textContent = avgTimeLost.toFixed(0) + ' min';
+
+    // === Impact du sport ===
+    const withSport = entries.filter(e => e.sport && e.sport !== 'no');
+    const withoutSport = entries.filter(e => !e.sport || e.sport === 'no');
+    const deloadDays = entries.filter(e => e.sportWeekType === 'deload');
+    const peakDays = entries.filter(e => e.sportWeekType === 'peak' || e.sportWeekType === 'test');
+
+    document.getElementById('quality-with-sport').textContent = withSport.length > 0 
+        ? (withSport.reduce((sum, e) => sum + e.quality, 0) / withSport.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-without-sport').textContent = withoutSport.length > 0 
+        ? (withoutSport.reduce((sum, e) => sum + e.quality, 0) / withoutSport.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-deload').textContent = deloadDays.length > 0 
+        ? (deloadDays.reduce((sum, e) => sum + e.quality, 0) / deloadDays.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-peak').textContent = peakDays.length > 0 
+        ? (peakDays.reduce((sum, e) => sum + e.quality, 0) / peakDays.length).toFixed(1) + '/10' : '--';
+
+    // === Tendances SJSR ===
+    const sjsrNights = entries.filter(e => e.sjsr === 'yes');
+    const sjsrFrequency = entries.length > 0 ? (sjsrNights.length / entries.length * 100) : 0;
+    const avgSjsrCount = sjsrNights.length > 0 
+        ? sjsrNights.reduce((sum, e) => sum + (e.sjsrCount || 1), 0) / sjsrNights.length : 0;
+    
+    // SJSR avec/sans magnésium
+    const sjsrWithMagnesium = sjsrNights.filter(e => e.supplements && e.supplements.magnesium);
+    const sjsrWithoutMagnesium = sjsrNights.filter(e => !e.supplements || !e.supplements.magnesium);
+    const daysWithMagnesium = entries.filter(e => e.supplements && e.supplements.magnesium);
+    const daysWithoutMagnesium = entries.filter(e => !e.supplements || !e.supplements.magnesium);
+    
+    const sjsrRateWithMag = daysWithMagnesium.length > 0 
+        ? (sjsrWithMagnesium.length / daysWithMagnesium.length * 100) : 0;
+    const sjsrRateWithoutMag = daysWithoutMagnesium.length > 0 
+        ? (sjsrWithoutMagnesium.length / daysWithoutMagnesium.length * 100) : 0;
+
+    document.getElementById('sjsr-frequency').textContent = sjsrFrequency.toFixed(0) + '%';
+    document.getElementById('sjsr-avg-count').textContent = avgSjsrCount.toFixed(1);
+    document.getElementById('sjsr-with-magnesium').textContent = sjsrRateWithMag.toFixed(0) + '%';
+    document.getElementById('sjsr-without-magnesium').textContent = sjsrRateWithoutMag.toFixed(0) + '%';
+
+    // === Corrélations stress/écran ===
+    const highStress = entries.filter(e => e.stress >= 4);
+    const lowStress = entries.filter(e => e.stress <= 2);
+    const highScreen = entries.filter(e => e.screenTime >= 4);
+    const lowScreen = entries.filter(e => e.screenTime <= 2);
+
+    document.getElementById('quality-high-stress').textContent = highStress.length > 0 
+        ? (highStress.reduce((sum, e) => sum + e.quality, 0) / highStress.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-low-stress').textContent = lowStress.length > 0 
+        ? (lowStress.reduce((sum, e) => sum + e.quality, 0) / lowStress.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-high-screen').textContent = highScreen.length > 0 
+        ? (highScreen.reduce((sum, e) => sum + e.quality, 0) / highScreen.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-low-screen').textContent = lowScreen.length > 0 
+        ? (lowScreen.reduce((sum, e) => sum + e.quality, 0) / lowScreen.length).toFixed(1) + '/10' : '--';
+
+    // === Patterns par jour de la semaine ===
+    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
+    dayNames.forEach((day, index) => {
+        const dayEntries = entries.filter(e => new Date(e.date).getDay() === index);
+        const avgDayQuality = dayEntries.length > 0 
+            ? (dayEntries.reduce((sum, e) => sum + e.quality, 0) / dayEntries.length).toFixed(1) 
+            : '--';
+        document.getElementById('quality-' + day).textContent = avgDayQuality;
+    });
+
     updateCharts(entries);
+}
+
+function resetAdvancedStats() {
+    // Efficacité
+    document.getElementById('sleep-efficiency').textContent = '--%';
+    document.getElementById('avg-awakenings').textContent = '--';
+    document.getElementById('avg-awakening-duration').textContent = '--';
+    document.getElementById('time-lost').textContent = '--';
+    // Sport
+    document.getElementById('quality-with-sport').textContent = '--/10';
+    document.getElementById('quality-without-sport').textContent = '--/10';
+    document.getElementById('quality-deload').textContent = '--/10';
+    document.getElementById('quality-peak').textContent = '--/10';
+    // SJSR
+    document.getElementById('sjsr-frequency').textContent = '--%';
+    document.getElementById('sjsr-avg-count').textContent = '--';
+    document.getElementById('sjsr-with-magnesium').textContent = '--%';
+    document.getElementById('sjsr-without-magnesium').textContent = '--%';
+    // Corrélations
+    document.getElementById('quality-high-stress').textContent = '--/10';
+    document.getElementById('quality-low-stress').textContent = '--/10';
+    document.getElementById('quality-high-screen').textContent = '--/10';
+    document.getElementById('quality-low-screen').textContent = '--/10';
+    // Jours
+    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
+        document.getElementById('quality-' + day).textContent = '--';
+    });
 }
 
 function clearCharts() {
@@ -795,7 +897,6 @@ function updateCharts(entries) {
     const qualityData = entries.map(e => e.quality);
     const energyData = entries.map(e => e.energy);
     const durationData = entries.map(e => calculateEffectiveSleepMinutes(e) / 60);
-    const bedtimeData = entries.map(e => timeToDecimal(e.bedtime));
 
     const chartOptions = {
         responsive: true,
@@ -845,30 +946,6 @@ function updateCharts(entries) {
                 ...chartOptions.scales,
                 y: { ...chartOptions.scales.y, min: 0, max: 12,
                     ticks: { ...chartOptions.scales.y.ticks, callback: (v) => v + 'h' }
-                }
-            }
-        }
-    });
-
-    const bedtimeCtx = document.getElementById('bedtime-chart').getContext('2d');
-    charts.bedtime = new Chart(bedtimeCtx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Coucher', data: bedtimeData,
-                borderColor: '#f59e0b', backgroundColor: 'rgba(245, 158, 11, 0.2)',
-                fill: true, tension: 0.3
-            }]
-        },
-        options: {
-            ...chartOptions,
-            scales: {
-                ...chartOptions.scales,
-                y: { ...chartOptions.scales.y, min: 20, max: 26,
-                    ticks: { ...chartOptions.scales.y.ticks,
-                        callback: (v) => (v >= 24 ? v - 24 : v) + ':00'
-                    }
                 }
             }
         }
