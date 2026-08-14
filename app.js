@@ -474,7 +474,7 @@ async function loadExistingEntry(date) {
         document.getElementById('outdoorTime').value = entry.outdoorTime || 0;
         document.getElementById('steps').value = entry.steps || '';
         document.getElementById('nap').value = entry.nap || 'no';
-        document.getElementById('screenTime').value = entry.screenTime || 4;
+        document.getElementById('screenTime').value = entry.screenTime || 2;
         document.getElementById('hydration').value = entry.hydration || 1.5;
         document.getElementById('stress').value = entry.stress || 1;
         document.getElementById('rumination').value = entry.rumination || 1;
