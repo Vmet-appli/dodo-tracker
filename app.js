@@ -217,7 +217,12 @@ const REQUIRED_FIELDS = ['waketime', 'bedtime', 'quality', 'energy'];
 let saveTimeout = null;
 function debouncedSave() {
     if (saveTimeout) clearTimeout(saveTimeout);
-    saveTimeout = setTimeout(() => saveCurrentEntry(false), 500);
+    // Petit indicateur visuel de modification en cours
+    document.getElementById('date-banner')?.classList.add('saving');
+    saveTimeout = setTimeout(async () => {
+        await saveCurrentEntry(false);
+        document.getElementById('date-banner')?.classList.remove('saving');
+    }, 500);
 }
 
 // Sauvegarde automatique de l'entrée courante
@@ -309,9 +314,10 @@ function initForm() {
     formInputs.forEach(input => {
         if (input.id === 'date') return; // Date gérée automatiquement
         
-        // Écouter à la fois 'input' et 'change' pour couvrir tous les cas
+        // Écouter à la fois 'input', 'change' et 'blur' pour couvrir tous les cas (surtout iOS)
         input.addEventListener('input', debouncedSave);
         input.addEventListener('change', debouncedSave);
+        input.addEventListener('blur', debouncedSave);
     });
     
     // Sauvegarde aussi sur les radios
