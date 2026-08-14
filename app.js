@@ -476,7 +476,7 @@ async function loadExistingEntry(date) {
         document.getElementById('nap').value = entry.nap || 'no';
         document.getElementById('screenTime').value = entry.screenTime || 4;
         document.getElementById('hydration').value = entry.hydration || 1.5;
-        document.getElementById('stress').value = entry.stress || 3;
+        document.getElementById('stress').value = entry.stress || 1;
         document.getElementById('rumination').value = entry.rumination || 1;
         document.getElementById('sadness').value = entry.sadness || 1;
         const dayQualityRadio = document.querySelector(`input[name="dayQuality"][value="${entry.dayQuality || 'sun'}"]`);
@@ -656,7 +656,7 @@ async function openEditModal(id) {
     document.getElementById('edit-outdoorTime').value = entry.outdoorTime || 0;
     document.getElementById('edit-steps').value = entry.steps || 0;
     document.getElementById('edit-nap').value = entry.nap || 'no';
-    document.getElementById('edit-stress').value = entry.stress || 3;
+    document.getElementById('edit-stress').value = entry.stress || 1;
     document.getElementById('edit-rumination').value = entry.rumination || 1;
     document.getElementById('edit-sadness').value = entry.sadness || 1;
     document.getElementById('edit-dayQuality').value = entry.dayQuality || 'sun';
