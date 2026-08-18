@@ -7,7 +7,6 @@ const DB_VERSION = 2;
 const STORE_NAME = 'sleepEntries';
 
 let db = null;
-let charts = {};
 let deleteEntryId = null;
 
 // ============================================
@@ -810,7 +809,6 @@ async function updateStats() {
         document.getElementById('avg-energy').textContent = '--';
         document.getElementById('total-entries').textContent = '0';
         resetAdvancedStats();
-        clearCharts();
         return;
     }
 
@@ -963,8 +961,6 @@ async function updateStats() {
 
     // === Facteurs cumulés ===
     analyzeCumulativeFactors(entries);
-
-    updateCharts(entries);
 }
 
 function analyzeCumulativeFactors(entries) {
@@ -1096,72 +1092,7 @@ function resetAdvancedStats() {
     document.getElementById('good-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
 }
 
-function clearCharts() {
-    Object.values(charts).forEach(chart => chart?.destroy());
-    charts = {};
-}
 
-
-function updateCharts(entries) {
-    clearCharts();
-    const labels = entries.map(e => formatDateShort(e.date));
-    const qualityData = entries.map(e => e.quality);
-    const energyData = entries.map(e => e.energy);
-    const durationData = entries.map(e => calculateEffectiveSleepMinutes(e) / 60);
-
-    const chartOptions = {
-        responsive: true,
-        maintainAspectRatio: true,
-        plugins: { legend: { display: false } },
-        scales: {
-            x: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } },
-            y: { grid: { color: 'rgba(255,255,255,0.1)' }, ticks: { color: '#94a3b8' } }
-        }
-    };
-
-    const qualityCtx = document.getElementById('quality-chart').getContext('2d');
-    charts.quality = new Chart(qualityCtx, {
-        type: 'line',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Qualité', data: qualityData,
-                borderColor: '#818cf8', backgroundColor: 'rgba(129, 140, 248, 0.2)',
-                fill: true, tension: 0.3
-            }, {
-                label: 'Énergie', data: energyData,
-                borderColor: '#22c55e', backgroundColor: 'rgba(34, 197, 94, 0.2)',
-                fill: true, tension: 0.3
-            }]
-        },
-        options: {
-            ...chartOptions,
-            plugins: { legend: { display: true, labels: { color: '#94a3b8' } } },
-            scales: { ...chartOptions.scales, y: { ...chartOptions.scales.y, min: 0, max: 5 } }
-        }
-    });
-
-    const durationCtx = document.getElementById('duration-chart').getContext('2d');
-    charts.duration = new Chart(durationCtx, {
-        type: 'bar',
-        data: {
-            labels: labels,
-            datasets: [{
-                label: 'Heures', data: durationData,
-                backgroundColor: 'rgba(79, 70, 229, 0.7)', borderRadius: 4
-            }]
-        },
-        options: {
-            ...chartOptions,
-            scales: {
-                ...chartOptions.scales,
-                y: { ...chartOptions.scales.y, min: 0, max: 12,
-                    ticks: { ...chartOptions.scales.y.ticks, callback: (v) => v + 'h' }
-                }
-            }
-        }
-    });
-}
 
 
 // ============================================
