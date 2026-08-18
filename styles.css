@@ -223,6 +223,15 @@ body {
     opacity: 0.8;
 }
 
+.tips-refresh-info {
+    font-size: 0.78rem;
+    color: var(--text-secondary);
+    text-align: right;
+    margin-bottom: 12px;
+    opacity: 0.7;
+    font-style: italic;
+}
+
 /* Titres de section */
 .section-title {
     font-size: 1.1rem;
@@ -841,6 +850,48 @@ input[type="range"]::-moz-range-thumb {
 .supplement-checkbox:has(input:checked) {
     background: rgba(79, 70, 229, 0.15);
     border-color: var(--primary-color);
+}
+
+/* Bouton × pour retirer un complément */
+.supp-remove-btn {
+    margin-left: auto;
+    background: none;
+    border: none;
+    color: var(--text-secondary);
+    font-size: 1.1rem;
+    line-height: 1;
+    cursor: pointer;
+    padding: 0 2px;
+    opacity: 0.4;
+    transition: opacity 0.2s, color 0.2s;
+    flex-shrink: 0;
+}
+
+.supp-remove-btn:hover {
+    opacity: 1;
+    color: var(--error-color, #ef4444);
+}
+
+/* Bouton + Ajouter */
+.supp-add-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 10px 12px;
+    background: none;
+    border: 1px dashed var(--border-color);
+    border-radius: var(--radius-sm);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.supp-add-btn:hover {
+    border-color: var(--primary-light);
+    color: var(--primary-light);
+    background: rgba(79, 70, 229, 0.07);
 }
 
 @media (max-width: 360px) {

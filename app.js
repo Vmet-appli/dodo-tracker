@@ -15,6 +15,7 @@ let deleteEntryId = null;
 
 document.addEventListener('DOMContentLoaded', () => {
     initDB().then(() => {
+        initSupplementLabels();
         initTabs();
         initForm();
         initConditionalFields();
@@ -22,6 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initModals();
         initExportImport();
         initStatsFilters();
+        renderSupplementsGrid();
         setDefaultDate();
         loadHistory();
         registerServiceWorker();
@@ -178,6 +180,133 @@ function initTabs() {
 }
 
 // ============================================
+// Compléments alimentaires dynamiques
+// ============================================
+
+const DEFAULT_SUPPLEMENTS = ['magnesium', 'creatine', 'omega3', 'glutamine', 'kefir'];
+
+const SUPPLEMENT_LABELS = {
+    magnesium: 'Magnésium',
+    creatine: 'Créatine',
+    omega3: 'Oméga 3',
+    glutamine: 'Glutamine',
+    kefir: 'Kéfir'
+};
+
+function getSupplementList() {
+    const stored = localStorage.getItem('supplementList');
+    if (stored) return JSON.parse(stored);
+    // Première fois : initialiser avec les compléments par défaut
+    localStorage.setItem('supplementList', JSON.stringify(DEFAULT_SUPPLEMENTS));
+    return DEFAULT_SUPPLEMENTS;
+}
+
+function saveSupplementList(list) {
+    localStorage.setItem('supplementList', JSON.stringify(list));
+}
+
+function getSupplementLabel(key) {
+    // Chercher d'abord dans les labels prédéfinis, sinon capitaliser la clé
+    return SUPPLEMENT_LABELS[key] || (key.charAt(0).toUpperCase() + key.slice(1));
+}
+
+function renderSupplementsGrid(checkedState = null) {
+    const grid = document.getElementById('supplements-grid');
+    if (!grid) return;
+
+    const list = getSupplementList();
+
+    grid.innerHTML = list.map(key => `
+        <label class="supplement-checkbox">
+            <input type="checkbox" class="supp-check" data-key="${key}"
+                ${checkedState ? (checkedState[key] !== false ? 'checked' : '') : 'checked'}>
+            <span>${getSupplementLabel(key)}</span>
+            <button type="button" class="supp-remove-btn" data-key="${key}" title="Retirer ${getSupplementLabel(key)}">×</button>
+        </label>
+    `).join('') + `
+        <button type="button" id="add-supplement-btn" class="supp-add-btn" title="Ajouter un complément">+ Ajouter</button>
+    `;
+
+    // Écouter les suppressions
+    grid.querySelectorAll('.supp-remove-btn').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.preventDefault();
+            const key = btn.dataset.key;
+            const label = getSupplementLabel(key);
+            if (confirm(`Retirer "${label}" de la liste des compléments ?\n\nL'historique existant ne sera pas modifié.`)) {
+                const list = getSupplementList().filter(k => k !== key);
+                saveSupplementList(list);
+                renderSupplementsGrid();
+                debouncedSave();
+            }
+        });
+    });
+
+    // Écouter les checkboxes pour auto-save
+    grid.querySelectorAll('.supp-check').forEach(cb => {
+        cb.addEventListener('change', debouncedSave);
+    });
+
+    // Bouton d'ajout
+    document.getElementById('add-supplement-btn').addEventListener('click', (e) => {
+        e.preventDefault();
+        openAddSupplementModal();
+    });
+}
+
+function openAddSupplementModal() {
+    document.getElementById('add-supplement-modal').classList.add('show');
+    document.getElementById('new-supplement-name').value = '';
+    document.getElementById('new-supplement-name').focus();
+}
+
+function closeAddSupplementModal() {
+    document.getElementById('add-supplement-modal').classList.remove('show');
+}
+
+function addSupplement(name) {
+    const trimmed = name.trim();
+    if (!trimmed) return;
+    // Créer une clé normalisée (minuscules, sans accents, sans espaces)
+    const key = trimmed.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/\s+/g, '_')
+        .replace(/[^a-z0-9_]/g, '');
+    if (!key) return;
+
+    const list = getSupplementList();
+    if (list.includes(key)) {
+        showToast('⚠️ Ce complément existe déjà', 'warning');
+        return;
+    }
+    // Stocker le label personnalisé
+    SUPPLEMENT_LABELS[key] = trimmed;
+    const customLabels = JSON.parse(localStorage.getItem('supplementLabels') || '{}');
+    customLabels[key] = trimmed;
+    localStorage.setItem('supplementLabels', JSON.stringify(customLabels));
+
+    list.push(key);
+    saveSupplementList(list);
+    renderSupplementsGrid(getCurrentSupplementsState());
+    debouncedSave();
+    showToast(`✅ "${trimmed}" ajouté`, 'success');
+}
+
+function getCurrentSupplementsState() {
+    const state = {};
+    document.querySelectorAll('.supp-check').forEach(cb => {
+        state[cb.dataset.key] = cb.checked;
+    });
+    return state;
+}
+
+function initSupplementLabels() {
+    // Recharger les labels personnalisés au démarrage
+    const customLabels = JSON.parse(localStorage.getItem('supplementLabels') || '{}');
+    Object.assign(SUPPLEMENT_LABELS, customLabels);
+}
+
+// ============================================
 // Champs conditionnels
 // ============================================
 
@@ -271,13 +400,7 @@ async function saveCurrentEntry(isValidation = false) {
             parseInt(document.getElementById('coffeeCount').value) : 0,
         lunch: document.getElementById('lunch').value,
         dinner: document.getElementById('dinner').value,
-        supplements: {
-            magnesium: document.getElementById('supp-magnesium').checked,
-            creatine: document.getElementById('supp-creatine').checked,
-            omega3: document.getElementById('supp-omega3').checked,
-            glutamine: document.getElementById('supp-glutamine').checked,
-            kefir: document.getElementById('supp-kefir').checked
-        },
+        supplements: getCurrentSupplementsState(),
         // Activité
         sport: document.getElementById('sport').value,
         sportDuration: document.getElementById('sport').value !== 'no' ? 
@@ -503,13 +626,9 @@ async function loadExistingEntry(date) {
         document.getElementById('coffee-count-group').style.display = (entry.coffee || 'yes') === 'yes' ? 'block' : 'none';
         document.getElementById('lunch').value = entry.lunch || 'meat';
         document.getElementById('dinner').value = entry.dinner || 'fish';
-        // Charger les suppléments
-        const supps = entry.supplements || { magnesium: true, creatine: true, omega3: true, glutamine: true, kefir: true };
-        document.getElementById('supp-magnesium').checked = supps.magnesium !== false;
-        document.getElementById('supp-creatine').checked = supps.creatine !== false;
-        document.getElementById('supp-omega3').checked = supps.omega3 !== false;
-        document.getElementById('supp-glutamine').checked = supps.glutamine !== false;
-        document.getElementById('supp-kefir').checked = supps.kefir !== false;
+        // Charger les suppléments dynamiquement
+        const supps = entry.supplements || {};
+        renderSupplementsGrid(supps);
         document.getElementById('sport').value = entry.sport || 'intense';
         document.getElementById('sportDuration').value = entry.sportDuration || 120;
         document.getElementById('sportTime').value = entry.sportTime || 'evening';
@@ -656,6 +775,25 @@ function initModals() {
     document.getElementById('confirm-delete').addEventListener('click', confirmDelete);
     document.getElementById('cancel-edit').addEventListener('click', closeEditModal);
     document.getElementById('edit-form').addEventListener('submit', saveEdit);
+    
+    // Modale ajout complément
+    document.getElementById('cancel-add-supplement').addEventListener('click', closeAddSupplementModal);
+    document.getElementById('confirm-add-supplement').addEventListener('click', () => {
+        const name = document.getElementById('new-supplement-name').value;
+        if (name.trim()) {
+            addSupplement(name);
+            closeAddSupplementModal();
+        } else {
+            document.getElementById('new-supplement-name').focus();
+        }
+    });
+    document.getElementById('new-supplement-name').addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const name = document.getElementById('new-supplement-name').value;
+            if (name.trim()) { addSupplement(name); closeAddSupplementModal(); }
+        }
+    });
     
     document.querySelectorAll('.modal').forEach(modal => {
         modal.addEventListener('click', (e) => {
@@ -1624,8 +1762,34 @@ async function generateSmartTips() {
         }
     }
     
-    // Afficher les conseils (max 4 pour ne pas surcharger)
-    displayTips(tips.slice(0, 4));
+    // Rotation hebdomadaire : mélange les conseils selon le numéro de semaine
+    const weeklyTips = selectWeeklyTips(tips, 4);
+    displayTips(weeklyTips);
+}
+
+// Retourne le numéro de semaine ISO de l'année en cours
+function getWeekNumber() {
+    const now = new Date();
+    const startOfYear = new Date(now.getFullYear(), 0, 1);
+    const diff = now - startOfYear;
+    const oneWeek = 7 * 24 * 60 * 60 * 1000;
+    return Math.floor(diff / oneWeek);
+}
+
+// Sélectionne un sous-ensemble de conseils en fonction du numéro de semaine
+// Chaque semaine, on décale le point de départ pour montrer des conseils différents
+function selectWeeklyTips(tips, count) {
+    if (tips.length <= count) return tips;
+    
+    const weekNum = getWeekNumber();
+    const offset = (weekNum * count) % tips.length;
+    
+    // Prendre `count` conseils en commençant à l'offset, en bouclant si besoin
+    const selected = [];
+    for (let i = 0; i < count; i++) {
+        selected.push(tips[(offset + i) % tips.length]);
+    }
+    return selected;
 }
 
 function displayTips(tips) {
@@ -1637,14 +1801,23 @@ function displayTips(tips) {
         return;
     }
     
+    // Afficher la date du prochain renouvellement (lundi suivant)
+    const now = new Date();
+    const daysUntilMonday = (8 - now.getDay()) % 7 || 7;
+    const nextMonday = new Date(now);
+    nextMonday.setDate(now.getDate() + daysUntilMonday);
+    const nextMondayStr = nextMonday.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' });
+    
     section.style.display = 'block';
-    content.innerHTML = tips.map(tip => `
+    content.innerHTML = `
+        <p class="tips-refresh-info">🔄 Nouveaux conseils le ${nextMondayStr}</p>
+        ${tips.map(tip => `
         <div class="tip-card ${tip.type}">
             <div class="tip-title">${tip.icon} ${tip.title}</div>
             <div class="tip-content">${tip.content}</div>
             <div class="tip-source">📚 ${tip.source}</div>
         </div>
-    `).join('');
+    `).join('')}`;
 }
 
 // Mettre à jour les conseils au chargement (avec vérification hebdomadaire)
