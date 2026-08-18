@@ -24,6 +24,7 @@ document.addEventListener('DOMContentLoaded', () => {
         initExportImport();
         initStatsFilters();
         renderSupplementsGrid();
+        initSupplementsEvents();
         setDefaultDate();
         loadHistory();
         registerServiceWorker();
@@ -224,34 +225,9 @@ function renderSupplementsGrid(checkedState = null) {
             <button type="button" class="supp-remove-btn" data-key="${key}" title="Retirer ${getSupplementLabel(key)}">×</button>
         </label>
     `).join('') + `
-        <button type="button" id="add-supplement-btn" class="supp-add-btn" title="Ajouter un complément">+ Ajouter</button>
+        <button type="button" id="add-supplement-btn" class="supp-add-btn">+ Ajouter</button>
     `;
-
-    // Écouter les suppressions
-    grid.querySelectorAll('.supp-remove-btn').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-            e.preventDefault();
-            const key = btn.dataset.key;
-            const label = getSupplementLabel(key);
-            if (confirm(`Retirer "${label}" de la liste des compléments ?\n\nL'historique existant ne sera pas modifié.`)) {
-                const list = getSupplementList().filter(k => k !== key);
-                saveSupplementList(list);
-                renderSupplementsGrid();
-                debouncedSave();
-            }
-        });
-    });
-
-    // Écouter les checkboxes pour auto-save
-    grid.querySelectorAll('.supp-check').forEach(cb => {
-        cb.addEventListener('change', debouncedSave);
-    });
-
-    // Bouton d'ajout
-    document.getElementById('add-supplement-btn').addEventListener('click', (e) => {
-        e.preventDefault();
-        openAddSupplementModal();
-    });
+    // Les événements sont gérés par délégation dans initSupplementsEvents()
 }
 
 function openAddSupplementModal() {
@@ -304,6 +280,40 @@ function initSupplementLabels() {
     // Recharger les labels personnalisés au démarrage
     const customLabels = JSON.parse(localStorage.getItem('supplementLabels') || '{}');
     Object.assign(SUPPLEMENT_LABELS, customLabels);
+}
+
+// Délégation d'événements sur le conteneur stable — à appeler une seule fois au démarrage
+function initSupplementsEvents() {
+    const grid = document.getElementById('supplements-grid');
+    if (!grid) return;
+
+    grid.addEventListener('click', (e) => {
+        // Bouton + Ajouter
+        if (e.target.id === 'add-supplement-btn' || e.target.closest('#add-supplement-btn')) {
+            e.preventDefault();
+            openAddSupplementModal();
+            return;
+        }
+        // Bouton × supprimer
+        const removeBtn = e.target.closest('.supp-remove-btn');
+        if (removeBtn) {
+            e.preventDefault();
+            const key = removeBtn.dataset.key;
+            const label = getSupplementLabel(key);
+            if (confirm(`Retirer "${label}" de la liste des compléments ?\n\nL'historique existant ne sera pas modifié.`)) {
+                const list = getSupplementList().filter(k => k !== key);
+                saveSupplementList(list);
+                renderSupplementsGrid();
+                debouncedSave();
+            }
+        }
+    });
+
+    grid.addEventListener('change', (e) => {
+        if (e.target.classList.contains('supp-check')) {
+            debouncedSave();
+        }
+    });
 }
 
 // ============================================
@@ -488,11 +498,6 @@ function initForm() {
     // Sauvegarde aussi sur les radios
     document.querySelectorAll('input[name="dayQuality"]').forEach(radio => {
         radio.addEventListener('change', debouncedSave);
-    });
-    
-    // Sauvegarde aussi sur les checkboxes de suppléments
-    document.querySelectorAll('.supplement-checkbox input[type="checkbox"]').forEach(checkbox => {
-        checkbox.addEventListener('change', debouncedSave);
     });
     
     // Le bouton Enregistrer sert maintenant à VALIDER la nuit
