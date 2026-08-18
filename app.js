@@ -340,6 +340,7 @@ function initForm() {
     
     // Ajouter la sauvegarde automatique sur tous les champs
     const formInputs = form.querySelectorAll('input, select, textarea');
+    console.log('Nombre de champs trouvés dans le formulaire:', formInputs.length);
     formInputs.forEach(input => {
         if (input.id === 'date') return; // Date gérée automatiquement
         
@@ -347,6 +348,19 @@ function initForm() {
         input.addEventListener('input', debouncedSave);
         input.addEventListener('change', debouncedSave);
         input.addEventListener('blur', debouncedSave);
+    });
+    
+    // Ajouter explicitement pour les champs problématiques sur iOS
+    ['outdoorTime', 'steps', 'screenTime', 'hydration', 'nap'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) {
+            el.addEventListener('input', debouncedSave);
+            el.addEventListener('change', debouncedSave);
+            el.addEventListener('blur', debouncedSave);
+            console.log('Event listener ajouté pour:', id);
+        } else {
+            console.warn('Champ non trouvé:', id);
+        }
     });
     
     // Sauvegarde aussi sur les radios
