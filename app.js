@@ -968,23 +968,29 @@ async function updateStats() {
 }
 
 function analyzeCumulativeFactors(entries) {
-    const badNights = entries.filter(e => e.quality < 5);
-    const goodNights = entries.filter(e => e.quality > 7);
+    const terribleNights = entries.filter(e => e.quality <= 2);
+    const badNights = entries.filter(e => e.quality > 2 && e.quality <= 4);
+    const okNights = entries.filter(e => e.quality >= 5 && e.quality <= 6);
+    const goodNights = entries.filter(e => e.quality >= 7);
     
-    const factors = [
+    const negativeFactors = [
         { name: 'SJSR présent', check: e => e.sjsr === 'yes' },
         { name: 'Sport intense', check: e => e.sport === 'intense' },
         { name: 'Sport le soir', check: e => e.sport !== 'no' && (e.sportTime === 'evening' || e.sportTime === 'late') },
         { name: 'Semaine peak/test', check: e => e.sportWeekType === 'peak' || e.sportWeekType === 'test' },
         { name: 'Stress élevé (≥4)', check: e => e.stress >= 4 },
         { name: 'Rumination élevée (≥4)', check: e => e.rumination >= 4 },
+        { name: 'Tristesse élevée (≥4)', check: e => e.sadness >= 4 },
         { name: 'Écran le soir', check: e => e.eveningActivity === 'screen' },
         { name: 'Café 3+', check: e => e.coffeeCount >= 3 },
         { name: 'Cheatmeal dîner', check: e => e.dinner === 'cheatmeal' },
-        { name: 'Peu de temps dehors (<30min)', check: e => e.outdoorTime <= 30 },
+        { name: 'Pas de petit-déj', check: e => e.breakfast === 'no' },
+        { name: 'Peu dehors (<30min)', check: e => e.outdoorTime <= 30 },
         { name: 'Nez bouché', check: e => e.stuffyNose === 'yes' },
         { name: 'Sans magnésium', check: e => !e.supplements || !e.supplements.magnesium },
         { name: 'Sans kéfir', check: e => !e.supplements || !e.supplements.kefir },
+        { name: 'Sans oméga 3', check: e => !e.supplements || !e.supplements.omega3 },
+        { name: '5+ réveils', check: e => e.awakenings >= 5 },
     ];
     
     const positiveFactors = [
@@ -994,56 +1000,49 @@ function analyzeCumulativeFactors(entries) {
         { name: 'Semaine deload', check: e => e.sportWeekType === 'deload' },
         { name: 'Stress bas (≤2)', check: e => e.stress <= 2 },
         { name: 'Pas de rumination (≤2)', check: e => e.rumination <= 2 },
+        { name: 'Bonne humeur (≤2)', check: e => e.sadness <= 2 },
         { name: 'Lecture le soir', check: e => e.eveningActivity === 'reading' },
         { name: 'Café ≤2', check: e => e.coffeeCount <= 2 },
         { name: 'Dîner poisson', check: e => e.dinner === 'fish' },
+        { name: 'Dîner végétal', check: e => e.dinner === 'vegetal' },
         { name: 'Temps dehors +1h', check: e => e.outdoorTime >= 60 },
         { name: 'Nez dégagé', check: e => e.stuffyNose === 'no' },
         { name: 'Avec magnésium', check: e => e.supplements && e.supplements.magnesium },
         { name: 'Avec kéfir', check: e => e.supplements && e.supplements.kefir },
+        { name: 'Avec oméga 3', check: e => e.supplements && e.supplements.omega3 },
+        { name: '≤3 réveils', check: e => e.awakenings <= 3 },
     ];
     
-    // Analyser mauvaises nuits
-    const badFactorsContainer = document.getElementById('bad-nights-factors');
-    if (badNights.length >= 2) {
-        const factorCounts = factors.map(f => ({
-            name: f.name,
-            count: badNights.filter(f.check).length,
-            percent: (badNights.filter(f.check).length / badNights.length * 100).toFixed(0)
-        })).filter(f => f.count > 0).sort((a, b) => b.count - a.count).slice(0, 5);
-        
-        badFactorsContainer.innerHTML = factorCounts.length > 0 
-            ? factorCounts.map(f => `
-                <div class="factor-item">
-                    <span class="factor-name">${f.name}</span>
-                    <span class="factor-percent">${f.percent}%</span>
-                </div>
-            `).join('')
-            : '<p class="no-data">Pas de facteur dominant identifié</p>';
-    } else {
-        badFactorsContainer.innerHTML = '<p class="no-data">Pas assez de mauvaises nuits pour analyser</p>';
+    // Fonction pour analyser et afficher les facteurs
+    function displayFactors(nightsArray, containerId, factors, minNights = 1) {
+        const container = document.getElementById(containerId);
+        if (nightsArray.length >= minNights) {
+            const factorCounts = factors.map(f => ({
+                name: f.name,
+                count: nightsArray.filter(f.check).length,
+                percent: (nightsArray.filter(f.check).length / nightsArray.length * 100).toFixed(0)
+            })).filter(f => f.count > 0 && parseInt(f.percent) >= 30)
+              .sort((a, b) => b.count - a.count)
+              .slice(0, 5);
+            
+            container.innerHTML = factorCounts.length > 0 
+                ? factorCounts.map(f => `
+                    <div class="factor-item">
+                        <span class="factor-name">${f.name}</span>
+                        <span class="factor-percent">${f.percent}%</span>
+                    </div>
+                `).join('')
+                : `<p class="no-data">Aucun facteur dominant (${nightsArray.length} nuit${nightsArray.length > 1 ? 's' : ''})</p>`;
+        } else {
+            container.innerHTML = '<p class="no-data">Pas assez de données</p>';
+        }
     }
     
-    // Analyser bonnes nuits
-    const goodFactorsContainer = document.getElementById('good-nights-factors');
-    if (goodNights.length >= 2) {
-        const factorCounts = positiveFactors.map(f => ({
-            name: f.name,
-            count: goodNights.filter(f.check).length,
-            percent: (goodNights.filter(f.check).length / goodNights.length * 100).toFixed(0)
-        })).filter(f => f.count > 0).sort((a, b) => b.count - a.count).slice(0, 5);
-        
-        goodFactorsContainer.innerHTML = factorCounts.length > 0 
-            ? factorCounts.map(f => `
-                <div class="factor-item">
-                    <span class="factor-name">${f.name}</span>
-                    <span class="factor-percent">${f.percent}%</span>
-                </div>
-            `).join('')
-            : '<p class="no-data">Pas de facteur dominant identifié</p>';
-    } else {
-        goodFactorsContainer.innerHTML = '<p class="no-data">Pas assez de bonnes nuits pour analyser</p>';
-    }
+    // Analyser chaque catégorie
+    displayFactors(terribleNights, 'terrible-nights-factors', negativeFactors, 1);
+    displayFactors(badNights, 'bad-nights-factors', negativeFactors, 1);
+    displayFactors(okNights, 'ok-nights-factors', [...negativeFactors, ...positiveFactors], 1);
+    displayFactors(goodNights, 'good-nights-factors', positiveFactors, 1);
 }
 
 function resetAdvancedStats() {
@@ -1091,7 +1090,9 @@ function resetAdvancedStats() {
     document.getElementById('quality-with-kefir').textContent = '--/10';
     document.getElementById('quality-without-kefir').textContent = '--/10';
     // Facteurs cumulés
+    document.getElementById('terrible-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
     document.getElementById('bad-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
+    document.getElementById('ok-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
     document.getElementById('good-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
 }
 
