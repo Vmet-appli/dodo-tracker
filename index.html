@@ -502,7 +502,7 @@
                 </div>
 
                 <div class="advanced-stats">
-                    <h3>🏋️ Impact du sport</h3>
+                    <h3>🏋️ Impact du sport sur la qualité</h3>
                     <div class="stats-detail-grid">
                         <div class="stat-detail">
                             <span class="stat-detail-label">Avec sport</span>
@@ -521,10 +521,20 @@
                             <span class="stat-detail-value" id="quality-peak">--/10</span>
                         </div>
                     </div>
+                    <div class="stats-detail-grid" style="margin-top: 8px;">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Sport matin</span>
+                            <span class="stat-detail-value" id="quality-sport-morning">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Sport soir</span>
+                            <span class="stat-detail-value" id="quality-sport-evening">--/10</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="advanced-stats">
-                    <h3>🦵 Tendances SJSR</h3>
+                    <h3>🦵 Impact du SJSR</h3>
                     <div class="stats-detail-grid">
                         <div class="stat-detail">
                             <span class="stat-detail-label">Fréquence</span>
@@ -535,18 +545,60 @@
                             <span class="stat-detail-value" id="sjsr-avg-count">--</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">+ Magnésium</span>
+                            <span class="stat-detail-label">Qualité avec</span>
+                            <span class="stat-detail-value" id="quality-with-sjsr">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Qualité sans</span>
+                            <span class="stat-detail-value" id="quality-without-sjsr">--/10</span>
+                        </div>
+                    </div>
+                    <div class="stats-detail-grid" style="margin-top: 8px;">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">SJSR + Magnésium</span>
                             <span class="stat-detail-value" id="sjsr-with-magnesium">--%</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">- Magnésium</span>
+                            <span class="stat-detail-label">SJSR - Magnésium</span>
                             <span class="stat-detail-value" id="sjsr-without-magnesium">--%</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="advanced-stats">
-                    <h3>📱 Impact stress & écrans sur le sommeil</h3>
+                    <h3>🍽️ Impact de l'alimentation</h3>
+                    <div class="stats-detail-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Dîner viande</span>
+                            <span class="stat-detail-value" id="quality-dinner-meat">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Dîner poisson</span>
+                            <span class="stat-detail-value" id="quality-dinner-fish">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Dîner végétal</span>
+                            <span class="stat-detail-value" id="quality-dinner-vegetal">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Cheatmeal</span>
+                            <span class="stat-detail-value" id="quality-dinner-cheat">--/10</span>
+                        </div>
+                    </div>
+                    <div class="stats-detail-grid" style="margin-top: 8px;">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Café ≤2</span>
+                            <span class="stat-detail-value" id="quality-coffee-low">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">Café 3+</span>
+                            <span class="stat-detail-value" id="quality-coffee-high">--/10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>🧠 Impact du bien-être mental</h3>
                     <div class="stats-detail-grid">
                         <div class="stat-detail">
                             <span class="stat-detail-label">Stress élevé</span>
@@ -557,47 +609,83 @@
                             <span class="stat-detail-value" id="quality-low-stress">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Écran +4h</span>
-                            <span class="stat-detail-value" id="quality-high-screen">--/10</span>
+                            <span class="stat-detail-label">Rumination élevée</span>
+                            <span class="stat-detail-value" id="quality-high-rumination">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Écran -2h</span>
-                            <span class="stat-detail-value" id="quality-low-screen">--/10</span>
+                            <span class="stat-detail-label">Rumination basse</span>
+                            <span class="stat-detail-value" id="quality-low-rumination">--/10</span>
                         </div>
                     </div>
                 </div>
 
                 <div class="advanced-stats">
-                    <h3>📅 Qualité selon le jour de la semaine</h3>
-                    <div class="stats-detail-grid week-grid">
+                    <h3>📱 Impact des écrans et lumière</h3>
+                    <div class="stats-detail-grid">
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Lun</span>
-                            <span class="stat-detail-value" id="quality-monday">--</span>
+                            <span class="stat-detail-label">Écran le soir</span>
+                            <span class="stat-detail-value" id="quality-screen-evening">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Mar</span>
-                            <span class="stat-detail-value" id="quality-tuesday">--</span>
+                            <span class="stat-detail-label">Lecture le soir</span>
+                            <span class="stat-detail-value" id="quality-reading-evening">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Mer</span>
-                            <span class="stat-detail-value" id="quality-wednesday">--</span>
+                            <span class="stat-detail-label">Extérieur +1h</span>
+                            <span class="stat-detail-value" id="quality-outdoor-high">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Jeu</span>
-                            <span class="stat-detail-value" id="quality-thursday">--</span>
+                            <span class="stat-detail-label">Extérieur -30min</span>
+                            <span class="stat-detail-value" id="quality-outdoor-low">--/10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>💊 Impact des compléments</h3>
+                    <div class="stats-detail-grid">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">+ Magnésium</span>
+                            <span class="stat-detail-value" id="quality-with-magnesium">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Ven</span>
-                            <span class="stat-detail-value" id="quality-friday">--</span>
+                            <span class="stat-detail-label">- Magnésium</span>
+                            <span class="stat-detail-value" id="quality-without-magnesium">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Sam</span>
-                            <span class="stat-detail-value" id="quality-saturday">--</span>
+                            <span class="stat-detail-label">+ Oméga 3</span>
+                            <span class="stat-detail-value" id="quality-with-omega3">--/10</span>
                         </div>
                         <div class="stat-detail">
-                            <span class="stat-detail-label">Dim</span>
-                            <span class="stat-detail-value" id="quality-sunday">--</span>
+                            <span class="stat-detail-label">- Oméga 3</span>
+                            <span class="stat-detail-value" id="quality-without-omega3">--/10</span>
                         </div>
+                    </div>
+                    <div class="stats-detail-grid" style="margin-top: 8px;">
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">+ Kéfir</span>
+                            <span class="stat-detail-value" id="quality-with-kefir">--/10</span>
+                        </div>
+                        <div class="stat-detail">
+                            <span class="stat-detail-label">- Kéfir</span>
+                            <span class="stat-detail-value" id="quality-without-kefir">--/10</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>🔄 Facteurs cumulés (nuits difficiles)</h3>
+                    <p class="stats-description">Facteurs les plus fréquents lors de nuits de mauvaise qualité (&lt;5/10)</p>
+                    <div id="bad-nights-factors" class="factors-list">
+                        <p class="no-data">Pas assez de données</p>
+                    </div>
+                </div>
+
+                <div class="advanced-stats">
+                    <h3>✨ Facteurs cumulés (bonnes nuits)</h3>
+                    <p class="stats-description">Facteurs les plus fréquents lors de bonnes nuits (&gt;7/10)</p>
+                    <div id="good-nights-factors" class="factors-list">
+                        <p class="no-data">Pas assez de données</p>
                     </div>
                 </div>
 

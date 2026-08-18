@@ -847,6 +847,8 @@ async function updateStats() {
     const withoutSport = entries.filter(e => !e.sport || e.sport === 'no');
     const deloadDays = entries.filter(e => e.sportWeekType === 'deload');
     const peakDays = entries.filter(e => e.sportWeekType === 'peak' || e.sportWeekType === 'test');
+    const sportMorning = entries.filter(e => e.sport !== 'no' && (e.sportTime === 'morning' || e.sportTime === 'afternoon'));
+    const sportEvening = entries.filter(e => e.sport !== 'no' && (e.sportTime === 'evening' || e.sportTime === 'late'));
 
     document.getElementById('quality-with-sport').textContent = withSport.length > 0 
         ? (withSport.reduce((sum, e) => sum + e.quality, 0) / withSport.length).toFixed(1) + '/10' : '--';
@@ -856,14 +858,18 @@ async function updateStats() {
         ? (deloadDays.reduce((sum, e) => sum + e.quality, 0) / deloadDays.length).toFixed(1) + '/10' : '--';
     document.getElementById('quality-peak').textContent = peakDays.length > 0 
         ? (peakDays.reduce((sum, e) => sum + e.quality, 0) / peakDays.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-sport-morning').textContent = sportMorning.length > 0 
+        ? (sportMorning.reduce((sum, e) => sum + e.quality, 0) / sportMorning.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-sport-evening').textContent = sportEvening.length > 0 
+        ? (sportEvening.reduce((sum, e) => sum + e.quality, 0) / sportEvening.length).toFixed(1) + '/10' : '--';
 
-    // === Tendances SJSR ===
+    // === Impact du SJSR ===
     const sjsrNights = entries.filter(e => e.sjsr === 'yes');
+    const noSjsrNights = entries.filter(e => e.sjsr === 'no');
     const sjsrFrequency = entries.length > 0 ? (sjsrNights.length / entries.length * 100) : 0;
     const avgSjsrCount = sjsrNights.length > 0 
         ? sjsrNights.reduce((sum, e) => sum + (e.sjsrCount || 1), 0) / sjsrNights.length : 0;
     
-    // SJSR avec/sans magnésium
     const sjsrWithMagnesium = sjsrNights.filter(e => e.supplements && e.supplements.magnesium);
     const sjsrWithoutMagnesium = sjsrNights.filter(e => !e.supplements || !e.supplements.magnesium);
     const daysWithMagnesium = entries.filter(e => e.supplements && e.supplements.magnesium);
@@ -876,35 +882,168 @@ async function updateStats() {
 
     document.getElementById('sjsr-frequency').textContent = sjsrFrequency.toFixed(0) + '%';
     document.getElementById('sjsr-avg-count').textContent = avgSjsrCount.toFixed(1);
+    document.getElementById('quality-with-sjsr').textContent = sjsrNights.length > 0 
+        ? (sjsrNights.reduce((sum, e) => sum + e.quality, 0) / sjsrNights.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-without-sjsr').textContent = noSjsrNights.length > 0 
+        ? (noSjsrNights.reduce((sum, e) => sum + e.quality, 0) / noSjsrNights.length).toFixed(1) + '/10' : '--';
     document.getElementById('sjsr-with-magnesium').textContent = sjsrRateWithMag.toFixed(0) + '%';
     document.getElementById('sjsr-without-magnesium').textContent = sjsrRateWithoutMag.toFixed(0) + '%';
 
-    // === Corrélations stress/écran ===
+    // === Impact de l'alimentation ===
+    const dinnerMeat = entries.filter(e => e.dinner === 'meat');
+    const dinnerFish = entries.filter(e => e.dinner === 'fish');
+    const dinnerVegetal = entries.filter(e => e.dinner === 'vegetal');
+    const dinnerCheat = entries.filter(e => e.dinner === 'cheatmeal');
+    const coffeeLow = entries.filter(e => e.coffeeCount <= 2);
+    const coffeeHigh = entries.filter(e => e.coffeeCount >= 3);
+
+    document.getElementById('quality-dinner-meat').textContent = dinnerMeat.length > 0 
+        ? (dinnerMeat.reduce((sum, e) => sum + e.quality, 0) / dinnerMeat.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-dinner-fish').textContent = dinnerFish.length > 0 
+        ? (dinnerFish.reduce((sum, e) => sum + e.quality, 0) / dinnerFish.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-dinner-vegetal').textContent = dinnerVegetal.length > 0 
+        ? (dinnerVegetal.reduce((sum, e) => sum + e.quality, 0) / dinnerVegetal.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-dinner-cheat').textContent = dinnerCheat.length > 0 
+        ? (dinnerCheat.reduce((sum, e) => sum + e.quality, 0) / dinnerCheat.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-coffee-low').textContent = coffeeLow.length > 0 
+        ? (coffeeLow.reduce((sum, e) => sum + e.quality, 0) / coffeeLow.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-coffee-high').textContent = coffeeHigh.length > 0 
+        ? (coffeeHigh.reduce((sum, e) => sum + e.quality, 0) / coffeeHigh.length).toFixed(1) + '/10' : '--';
+
+    // === Impact du bien-être mental ===
     const highStress = entries.filter(e => e.stress >= 4);
     const lowStress = entries.filter(e => e.stress <= 2);
-    const highScreen = entries.filter(e => e.screenTime >= 4);
-    const lowScreen = entries.filter(e => e.screenTime <= 2);
+    const highRumination = entries.filter(e => e.rumination >= 4);
+    const lowRumination = entries.filter(e => e.rumination <= 2);
 
     document.getElementById('quality-high-stress').textContent = highStress.length > 0 
         ? (highStress.reduce((sum, e) => sum + e.quality, 0) / highStress.length).toFixed(1) + '/10' : '--';
     document.getElementById('quality-low-stress').textContent = lowStress.length > 0 
         ? (lowStress.reduce((sum, e) => sum + e.quality, 0) / lowStress.length).toFixed(1) + '/10' : '--';
-    document.getElementById('quality-high-screen').textContent = highScreen.length > 0 
-        ? (highScreen.reduce((sum, e) => sum + e.quality, 0) / highScreen.length).toFixed(1) + '/10' : '--';
-    document.getElementById('quality-low-screen').textContent = lowScreen.length > 0 
-        ? (lowScreen.reduce((sum, e) => sum + e.quality, 0) / lowScreen.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-high-rumination').textContent = highRumination.length > 0 
+        ? (highRumination.reduce((sum, e) => sum + e.quality, 0) / highRumination.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-low-rumination').textContent = lowRumination.length > 0 
+        ? (lowRumination.reduce((sum, e) => sum + e.quality, 0) / lowRumination.length).toFixed(1) + '/10' : '--';
 
-    // === Patterns par jour de la semaine ===
-    const dayNames = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday'];
-    dayNames.forEach((day, index) => {
-        const dayEntries = entries.filter(e => new Date(e.date).getDay() === index);
-        const avgDayQuality = dayEntries.length > 0 
-            ? (dayEntries.reduce((sum, e) => sum + e.quality, 0) / dayEntries.length).toFixed(1) 
-            : '--';
-        document.getElementById('quality-' + day).textContent = avgDayQuality;
-    });
+    // === Impact des écrans et lumière ===
+    const screenEvening = entries.filter(e => e.eveningActivity === 'screen');
+    const readingEvening = entries.filter(e => e.eveningActivity === 'reading');
+    const outdoorHigh = entries.filter(e => e.outdoorTime >= 60);
+    const outdoorLow = entries.filter(e => e.outdoorTime <= 30);
+
+    document.getElementById('quality-screen-evening').textContent = screenEvening.length > 0 
+        ? (screenEvening.reduce((sum, e) => sum + e.quality, 0) / screenEvening.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-reading-evening').textContent = readingEvening.length > 0 
+        ? (readingEvening.reduce((sum, e) => sum + e.quality, 0) / readingEvening.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-outdoor-high').textContent = outdoorHigh.length > 0 
+        ? (outdoorHigh.reduce((sum, e) => sum + e.quality, 0) / outdoorHigh.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-outdoor-low').textContent = outdoorLow.length > 0 
+        ? (outdoorLow.reduce((sum, e) => sum + e.quality, 0) / outdoorLow.length).toFixed(1) + '/10' : '--';
+
+    // === Impact des compléments ===
+    const withMagnesium = entries.filter(e => e.supplements && e.supplements.magnesium);
+    const withoutMagnesium = entries.filter(e => !e.supplements || !e.supplements.magnesium);
+    const withOmega3 = entries.filter(e => e.supplements && e.supplements.omega3);
+    const withoutOmega3 = entries.filter(e => !e.supplements || !e.supplements.omega3);
+    const withKefir = entries.filter(e => e.supplements && e.supplements.kefir);
+    const withoutKefir = entries.filter(e => !e.supplements || !e.supplements.kefir);
+
+    document.getElementById('quality-with-magnesium').textContent = withMagnesium.length > 0 
+        ? (withMagnesium.reduce((sum, e) => sum + e.quality, 0) / withMagnesium.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-without-magnesium').textContent = withoutMagnesium.length > 0 
+        ? (withoutMagnesium.reduce((sum, e) => sum + e.quality, 0) / withoutMagnesium.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-with-omega3').textContent = withOmega3.length > 0 
+        ? (withOmega3.reduce((sum, e) => sum + e.quality, 0) / withOmega3.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-without-omega3').textContent = withoutOmega3.length > 0 
+        ? (withoutOmega3.reduce((sum, e) => sum + e.quality, 0) / withoutOmega3.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-with-kefir').textContent = withKefir.length > 0 
+        ? (withKefir.reduce((sum, e) => sum + e.quality, 0) / withKefir.length).toFixed(1) + '/10' : '--';
+    document.getElementById('quality-without-kefir').textContent = withoutKefir.length > 0 
+        ? (withoutKefir.reduce((sum, e) => sum + e.quality, 0) / withoutKefir.length).toFixed(1) + '/10' : '--';
+
+    // === Facteurs cumulés ===
+    analyzeCumulativeFactors(entries);
 
     updateCharts(entries);
+}
+
+function analyzeCumulativeFactors(entries) {
+    const badNights = entries.filter(e => e.quality < 5);
+    const goodNights = entries.filter(e => e.quality > 7);
+    
+    const factors = [
+        { name: 'SJSR présent', check: e => e.sjsr === 'yes' },
+        { name: 'Sport intense', check: e => e.sport === 'intense' },
+        { name: 'Sport le soir', check: e => e.sport !== 'no' && (e.sportTime === 'evening' || e.sportTime === 'late') },
+        { name: 'Semaine peak/test', check: e => e.sportWeekType === 'peak' || e.sportWeekType === 'test' },
+        { name: 'Stress élevé (≥4)', check: e => e.stress >= 4 },
+        { name: 'Rumination élevée (≥4)', check: e => e.rumination >= 4 },
+        { name: 'Écran le soir', check: e => e.eveningActivity === 'screen' },
+        { name: 'Café 3+', check: e => e.coffeeCount >= 3 },
+        { name: 'Cheatmeal dîner', check: e => e.dinner === 'cheatmeal' },
+        { name: 'Peu de temps dehors (<30min)', check: e => e.outdoorTime <= 30 },
+        { name: 'Nez bouché', check: e => e.stuffyNose === 'yes' },
+        { name: 'Sans magnésium', check: e => !e.supplements || !e.supplements.magnesium },
+        { name: 'Sans kéfir', check: e => !e.supplements || !e.supplements.kefir },
+    ];
+    
+    const positiveFactors = [
+        { name: 'Pas de SJSR', check: e => e.sjsr === 'no' },
+        { name: 'Sport modéré/léger', check: e => e.sport === 'light' || e.sport === 'moderate' },
+        { name: 'Sport le matin', check: e => e.sport !== 'no' && e.sportTime === 'morning' },
+        { name: 'Semaine deload', check: e => e.sportWeekType === 'deload' },
+        { name: 'Stress bas (≤2)', check: e => e.stress <= 2 },
+        { name: 'Pas de rumination (≤2)', check: e => e.rumination <= 2 },
+        { name: 'Lecture le soir', check: e => e.eveningActivity === 'reading' },
+        { name: 'Café ≤2', check: e => e.coffeeCount <= 2 },
+        { name: 'Dîner poisson', check: e => e.dinner === 'fish' },
+        { name: 'Temps dehors +1h', check: e => e.outdoorTime >= 60 },
+        { name: 'Nez dégagé', check: e => e.stuffyNose === 'no' },
+        { name: 'Avec magnésium', check: e => e.supplements && e.supplements.magnesium },
+        { name: 'Avec kéfir', check: e => e.supplements && e.supplements.kefir },
+    ];
+    
+    // Analyser mauvaises nuits
+    const badFactorsContainer = document.getElementById('bad-nights-factors');
+    if (badNights.length >= 2) {
+        const factorCounts = factors.map(f => ({
+            name: f.name,
+            count: badNights.filter(f.check).length,
+            percent: (badNights.filter(f.check).length / badNights.length * 100).toFixed(0)
+        })).filter(f => f.count > 0).sort((a, b) => b.count - a.count).slice(0, 5);
+        
+        badFactorsContainer.innerHTML = factorCounts.length > 0 
+            ? factorCounts.map(f => `
+                <div class="factor-item">
+                    <span class="factor-name">${f.name}</span>
+                    <span class="factor-percent">${f.percent}%</span>
+                </div>
+            `).join('')
+            : '<p class="no-data">Pas de facteur dominant identifié</p>';
+    } else {
+        badFactorsContainer.innerHTML = '<p class="no-data">Pas assez de mauvaises nuits pour analyser</p>';
+    }
+    
+    // Analyser bonnes nuits
+    const goodFactorsContainer = document.getElementById('good-nights-factors');
+    if (goodNights.length >= 2) {
+        const factorCounts = positiveFactors.map(f => ({
+            name: f.name,
+            count: goodNights.filter(f.check).length,
+            percent: (goodNights.filter(f.check).length / goodNights.length * 100).toFixed(0)
+        })).filter(f => f.count > 0).sort((a, b) => b.count - a.count).slice(0, 5);
+        
+        goodFactorsContainer.innerHTML = factorCounts.length > 0 
+            ? factorCounts.map(f => `
+                <div class="factor-item">
+                    <span class="factor-name">${f.name}</span>
+                    <span class="factor-percent">${f.percent}%</span>
+                </div>
+            `).join('')
+            : '<p class="no-data">Pas de facteur dominant identifié</p>';
+    } else {
+        goodFactorsContainer.innerHTML = '<p class="no-data">Pas assez de bonnes nuits pour analyser</p>';
+    }
 }
 
 function resetAdvancedStats() {
@@ -918,20 +1057,42 @@ function resetAdvancedStats() {
     document.getElementById('quality-without-sport').textContent = '--/10';
     document.getElementById('quality-deload').textContent = '--/10';
     document.getElementById('quality-peak').textContent = '--/10';
+    document.getElementById('quality-sport-morning').textContent = '--/10';
+    document.getElementById('quality-sport-evening').textContent = '--/10';
     // SJSR
     document.getElementById('sjsr-frequency').textContent = '--%';
     document.getElementById('sjsr-avg-count').textContent = '--';
+    document.getElementById('quality-with-sjsr').textContent = '--/10';
+    document.getElementById('quality-without-sjsr').textContent = '--/10';
     document.getElementById('sjsr-with-magnesium').textContent = '--%';
     document.getElementById('sjsr-without-magnesium').textContent = '--%';
-    // Corrélations
+    // Alimentation
+    document.getElementById('quality-dinner-meat').textContent = '--/10';
+    document.getElementById('quality-dinner-fish').textContent = '--/10';
+    document.getElementById('quality-dinner-vegetal').textContent = '--/10';
+    document.getElementById('quality-dinner-cheat').textContent = '--/10';
+    document.getElementById('quality-coffee-low').textContent = '--/10';
+    document.getElementById('quality-coffee-high').textContent = '--/10';
+    // Bien-être mental
     document.getElementById('quality-high-stress').textContent = '--/10';
     document.getElementById('quality-low-stress').textContent = '--/10';
-    document.getElementById('quality-high-screen').textContent = '--/10';
-    document.getElementById('quality-low-screen').textContent = '--/10';
-    // Jours
-    ['monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday', 'sunday'].forEach(day => {
-        document.getElementById('quality-' + day).textContent = '--';
-    });
+    document.getElementById('quality-high-rumination').textContent = '--/10';
+    document.getElementById('quality-low-rumination').textContent = '--/10';
+    // Écrans et lumière
+    document.getElementById('quality-screen-evening').textContent = '--/10';
+    document.getElementById('quality-reading-evening').textContent = '--/10';
+    document.getElementById('quality-outdoor-high').textContent = '--/10';
+    document.getElementById('quality-outdoor-low').textContent = '--/10';
+    // Compléments
+    document.getElementById('quality-with-magnesium').textContent = '--/10';
+    document.getElementById('quality-without-magnesium').textContent = '--/10';
+    document.getElementById('quality-with-omega3').textContent = '--/10';
+    document.getElementById('quality-without-omega3').textContent = '--/10';
+    document.getElementById('quality-with-kefir').textContent = '--/10';
+    document.getElementById('quality-without-kefir').textContent = '--/10';
+    // Facteurs cumulés
+    document.getElementById('bad-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
+    document.getElementById('good-nights-factors').innerHTML = '<p class="no-data">Pas assez de données</p>';
 }
 
 function clearCharts() {
