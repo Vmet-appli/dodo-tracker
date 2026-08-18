@@ -160,7 +160,13 @@ function initTabs() {
     const tabs = document.querySelectorAll('.tab-btn');
     const contents = document.querySelectorAll('.tab-content');
     tabs.forEach(tab => {
-        tab.addEventListener('click', () => {
+        tab.addEventListener('click', async () => {
+            // Sauvegarder immédiatement avant de changer d'onglet
+            if (saveTimeout) {
+                clearTimeout(saveTimeout);
+                await saveCurrentEntry(false);
+            }
+            
             const targetId = tab.dataset.tab;
             tabs.forEach(t => t.classList.remove('active'));
             contents.forEach(c => c.classList.remove('active'));
@@ -228,8 +234,25 @@ function debouncedSave() {
     saveTimeout = setTimeout(async () => {
         await saveCurrentEntry(false);
         document.getElementById('date-banner')?.classList.remove('saving');
-    }, 500);
+    }, 300); // 300ms au lieu de 500ms
 }
+
+// Sauvegarde quand la page perd le focus (fermeture app, changement d'onglet navigateur)
+document.addEventListener('visibilitychange', async () => {
+    if (document.visibilityState === 'hidden' && saveTimeout) {
+        clearTimeout(saveTimeout);
+        await saveCurrentEntry(false);
+    }
+});
+
+// Sauvegarde avant fermeture de page
+window.addEventListener('beforeunload', () => {
+    if (saveTimeout) {
+        clearTimeout(saveTimeout);
+        // Note: saveCurrentEntry est async, on fait notre possible
+        saveCurrentEntry(false);
+    }
+});
 
 // Sauvegarde automatique de l'entrée courante
 async function saveCurrentEntry(isValidation = false) {
