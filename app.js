@@ -192,6 +192,12 @@ function initConditionalFields() {
         document.getElementById('sport-week-group').style.display = showPowerliftingDetails ? 'block' : 'none';
     });
     
+    // Travail -> lieu de travail
+    document.getElementById('work').addEventListener('change', (e) => {
+        document.getElementById('work-location-group').style.display = 
+            e.target.value === 'yes' ? 'block' : 'none';
+    });
+    
     // Réveils -> durée des réveils
     document.getElementById('awakenings').addEventListener('change', (e) => {
         document.getElementById('awakening-duration-group').style.display = 
