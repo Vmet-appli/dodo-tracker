@@ -293,8 +293,8 @@ async function saveCurrentEntry(isValidation = false) {
         outdoorTime: parseInt(document.getElementById('outdoorTime').value),
         steps: parseInt(document.getElementById('steps').value) || 0,
         nap: document.getElementById('nap').value,
-            screenTime: parseInt(document.getElementById('screenTime').value),
-            hydration: parseFloat(document.getElementById('hydration').value),
+        screenTime: parseInt(document.getElementById('screenTime').value),
+        hydration: parseFloat(document.getElementById('hydration').value),
         // Bien-être mental
         stress: parseInt(document.getElementById('stress').value),
         rumination: parseInt(document.getElementById('rumination').value),
