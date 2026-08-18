@@ -383,6 +383,9 @@ function initForm() {
             showToast('✅ Nuit validée !', 'success');
             loadHistory();
             
+            // Régénérer les conseils avec les nouvelles données
+            forceRefreshTips();
+            
             // Passer automatiquement à la prochaine nuit à compléter
             const nextDate = await findNextEntryToComplete();
             document.getElementById('date').value = nextDate;
@@ -1496,7 +1499,7 @@ async function generateSmartTips() {
     const goodNights = recent.filter(e => e.quality >= 7);
     if (goodNights.length >= 2) {
         // Chercher un pattern commun
-        const sportGoodNights = goodNights.filter(e => e.sport === 'yes').length;
+        const sportGoodNights = goodNights.filter(e => e.sport !== 'no').length;
         const outdoorGoodNights = goodNights.filter(e => e.outdoorTime >= 60).length;
         
         if (sportGoodNights >= 2 && sportGoodNights / goodNights.length > 0.6) {
@@ -1504,7 +1507,7 @@ async function generateSmartTips() {
                 type: 'insight',
                 icon: '✨',
                 title: 'Pattern positif identifié',
-                content: `${Math.round(sportGoodNights / goodNights.length * 100)}% de vos bonnes nuits incluent du sport. L\'activité physique augmente le sommeil profond (stade N3) de 20-30% selon les études. Continuez !`,
+                content: `${Math.round(sportGoodNights / goodNights.length * 100)}% de vos bonnes nuits incluent du sport. L'activité physique augmente le sommeil profond (stade N3) de 20-30% selon les études. Continuez !`,
                 source: 'Journal of Clinical Sleep Medicine, Kredlow et al. 2015'
             });
         } else if (outdoorGoodNights >= 2 && outdoorGoodNights / goodNights.length > 0.6) {
@@ -1518,8 +1521,111 @@ async function generateSmartTips() {
         }
     }
     
-    // Afficher les conseils (max 3 pour ne pas surcharger)
-    displayTips(tips.slice(0, 3));
+    // === NOUVEAUX CONSEILS ===
+    
+    // Impact alimentation - dîner
+    const fishDinners = recent.filter(e => e.dinner === 'fish');
+    const meatDinners = recent.filter(e => e.dinner === 'meat');
+    if (fishDinners.length >= 2 && meatDinners.length >= 2) {
+        const avgQualityFish = fishDinners.reduce((sum, e) => sum + e.quality, 0) / fishDinners.length;
+        const avgQualityMeat = meatDinners.reduce((sum, e) => sum + e.quality, 0) / meatDinners.length;
+        if (avgQualityFish > avgQualityMeat + 0.8) {
+            tips.push({
+                type: 'insight',
+                icon: '🐟',
+                title: 'Dîner poisson = meilleur sommeil',
+                content: `Qualité ${avgQualityFish.toFixed(1)}/10 après poisson vs ${avgQualityMeat.toFixed(1)}/10 après viande. Le poisson (surtout gras) apporte des oméga-3 et du tryptophane, précurseur de la sérotonine et mélatonine. La viande rouge est plus longue à digérer et peut perturber l'endormissement.`,
+                source: 'Journal of Clinical Sleep Medicine, St-Onge et al. 2016'
+            });
+        }
+    }
+    
+    // Impact cheatmeal
+    const cheatDinners = recent.filter(e => e.dinner === 'cheatmeal');
+    if (cheatDinners.length >= 1) {
+        const avgQualityCheat = cheatDinners.reduce((sum, e) => sum + e.quality, 0) / cheatDinners.length;
+        const avgQualityOther = recent.filter(e => e.dinner !== 'cheatmeal').reduce((sum, e) => sum + e.quality, 0) / Math.max(1, recent.filter(e => e.dinner !== 'cheatmeal').length);
+        if (avgQualityCheat < avgQualityOther - 1) {
+            tips.push({
+                type: 'warning',
+                icon: '🍔',
+                title: 'Impact cheatmeal détecté',
+                content: `Qualité ${avgQualityCheat.toFixed(1)}/10 après cheatmeal vs ${avgQualityOther.toFixed(1)}/10 sinon. Les repas riches en graisses et sucres augmentent le travail digestif nocturne et peuvent provoquer des micro-réveils. Si vous faites un cheatmeal, préférez le midi plutôt que le soir.`,
+                source: 'Advances in Nutrition, St-Onge 2016'
+            });
+        }
+    }
+    
+    // Lecture vs écran le soir
+    const readingNights = recent.filter(e => e.eveningActivity === 'reading');
+    const screenEveningNights = recent.filter(e => e.eveningActivity === 'screen');
+    if (readingNights.length >= 2 && screenEveningNights.length >= 2) {
+        const avgQualityReading = readingNights.reduce((sum, e) => sum + e.quality, 0) / readingNights.length;
+        const avgQualityScreen = screenEveningNights.reduce((sum, e) => sum + e.quality, 0) / screenEveningNights.length;
+        if (avgQualityReading > avgQualityScreen + 0.5) {
+            tips.push({
+                type: 'insight',
+                icon: '📖',
+                title: 'Lecture = meilleur sommeil',
+                content: `Qualité ${avgQualityReading.toFixed(1)}/10 après lecture vs ${avgQualityScreen.toFixed(1)}/10 après écran. La lecture réduit le stress de 68% en 6 minutes selon une étude. De plus, pas de lumière bleue = production de mélatonine non perturbée.`,
+                source: 'Journal of College Teaching & Learning, Lewis 2009'
+            });
+        }
+    }
+    
+    // Efficacité sommeil faible
+    const avgEfficiency = recent.reduce((sum, e) => {
+        const total = calculateDurationMinutes(e.bedtime, e.waketime);
+        const effective = calculateEffectiveSleepMinutes(e);
+        return sum + (total > 0 ? effective / total : 0);
+    }, 0) / recent.length * 100;
+    
+    if (avgEfficiency < 75 && recent.length >= 3) {
+        tips.push({
+            type: 'warning',
+            icon: '📊',
+            title: 'Efficacité sommeil faible',
+            content: `Votre efficacité de sommeil est de ${avgEfficiency.toFixed(0)}% (temps dormant / temps au lit). L'objectif est >85%. Causes possibles : trop de temps au lit éveillé, réveils fréquents. Conseil : se coucher seulement quand on a vraiment sommeil, et se lever si on ne dort pas après 20min.`,
+            source: 'Sleep Medicine Clinics, Perlis et al. 2008'
+        });
+    }
+    
+    // Trop de réveils
+    const avgAwakenings = recent.reduce((sum, e) => sum + (e.awakenings || 0), 0) / recent.length;
+    if (avgAwakenings >= 5 && recent.length >= 3) {
+        const stuffyCount = recent.filter(e => e.stuffyNose === 'yes').length;
+        const sjsrCount = recent.filter(e => e.sjsr === 'yes').length;
+        let cause = '';
+        if (stuffyCount >= recent.length / 2) cause = 'Le nez bouché fréquent pourrait en être la cause.';
+        else if (sjsrCount >= recent.length / 2) cause = 'Le SJSR fréquent pourrait en être la cause.';
+        
+        tips.push({
+            type: 'warning',
+            icon: '⏰',
+            title: 'Réveils nocturnes fréquents',
+            content: `Moyenne de ${avgAwakenings.toFixed(1)} réveils par nuit. ${cause} Les réveils fragmentent le sommeil et empêchent d'atteindre les stades profonds. Pistes : température fraîche, éviter les liquides 2h avant le coucher, traiter les causes sous-jacentes.`,
+            source: 'Sleep Medicine Reviews, Bonnet & Arand 2003'
+        });
+    }
+    
+    // Impact tristesse/morosité
+    const sadNights = recent.filter(e => e.sadness >= 4);
+    if (sadNights.length >= 2) {
+        const avgQualitySad = sadNights.reduce((sum, e) => sum + e.quality, 0) / sadNights.length;
+        const avgQualityOk = recent.filter(e => e.sadness < 4).reduce((sum, e) => sum + e.quality, 0) / Math.max(1, recent.filter(e => e.sadness < 4).length);
+        if (avgQualitySad < avgQualityOk - 1) {
+            tips.push({
+                type: 'science',
+                icon: '😔',
+                title: 'Humeur et sommeil',
+                content: `Qualité ${avgQualitySad.toFixed(1)}/10 avec tristesse élevée vs ${avgQualityOk.toFixed(1)}/10 sinon. La relation est bidirectionnelle : le mauvais sommeil aggrave l'humeur, et vice versa. L'exposition à la lumière naturelle le matin (30min) améliore les deux simultanément.`,
+                source: 'Lancet Psychiatry, Freeman et al. 2017'
+            });
+        }
+    }
+    
+    // Afficher les conseils (max 4 pour ne pas surcharger)
+    displayTips(tips.slice(0, 4));
 }
 
 function displayTips(tips) {
@@ -1541,7 +1647,31 @@ function displayTips(tips) {
     `).join('');
 }
 
-// Mettre à jour les conseils au chargement et après sauvegarde
+// Mettre à jour les conseils au chargement (avec vérification hebdomadaire)
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(generateSmartTips, 1000);
+    setTimeout(checkAndRefreshTips, 1000);
 });
+
+// Vérifie si les conseils doivent être régénérés (toutes les semaines)
+async function checkAndRefreshTips() {
+    const lastGeneration = localStorage.getItem('lastTipsGeneration');
+    const now = Date.now();
+    const oneWeek = 7 * 24 * 60 * 60 * 1000; // 7 jours en millisecondes
+    
+    if (!lastGeneration || (now - parseInt(lastGeneration)) > oneWeek) {
+        // Plus de 7 jours ou jamais généré : régénérer
+        await generateSmartTips();
+        localStorage.setItem('lastTipsGeneration', now.toString());
+        console.log('Conseils régénérés (réactualisation hebdomadaire)');
+    } else {
+        // Moins de 7 jours : afficher les conseils existants
+        await generateSmartTips();
+    }
+}
+
+// Fonction pour forcer la régénération des conseils (appelée après validation d'une nuit)
+async function forceRefreshTips() {
+    await generateSmartTips();
+    localStorage.setItem('lastTipsGeneration', Date.now().toString());
+    console.log('Conseils régénérés (nouvelle nuit validée)');
+}
