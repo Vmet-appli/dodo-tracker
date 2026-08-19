@@ -715,7 +715,9 @@ function updateRangeDisplay(id, value) {
 
 async function loadHistory() {
     const container = document.getElementById('history-list');
-    const entries = await getAllEntries();
+    const today = formatDateForInput(new Date());
+    const allEntries = await getAllEntries();
+    const entries = allEntries.filter(e => e.date < today);
 
     if (entries.length === 0) {
         container.innerHTML = `
