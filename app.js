@@ -435,6 +435,7 @@ async function saveCurrentEntry(isValidation = false) {
         // Sommeil
         eveningActivity: document.getElementById('eveningActivity').value,
         bedtime: document.getElementById('bedtime').value || null,
+        sleepOnset: document.getElementById('sleepOnset').value || null,
         awakenings: parseInt(document.getElementById('awakenings').value),
         awakeningDuration: parseInt(document.getElementById('awakenings').value) > 0 ?
             parseInt(document.getElementById('awakeningDuration').value) : 0,
@@ -625,6 +626,7 @@ async function loadExistingEntry(date) {
         else document.getElementById('waketime').value = '08:00';
         if (entry.bedtime) document.getElementById('bedtime').value = entry.bedtime;
         else document.getElementById('bedtime').value = '23:00';
+        document.getElementById('sleepOnset').value = entry.sleepOnset || '';
         document.getElementById('breakfast').value = entry.breakfast || 'yes';
         document.getElementById('coffee').value = entry.coffee || 'yes';
         document.getElementById('coffeeCount').value = entry.coffeeCount || 2;
@@ -676,6 +678,7 @@ async function loadExistingEntry(date) {
         // Nouvelle journée : réinitialiser aux valeurs par défaut
         document.getElementById('waketime').value = '08:00';
         document.getElementById('bedtime').value = '23:00';
+        document.getElementById('sleepOnset').value = '';
         document.getElementById('notes').value = '';
         document.getElementById('steps').value = '';
     }
@@ -758,6 +761,7 @@ function createHistoryItem(entry) {
             </div>
             <div class="history-details">
                 <div class="history-detail"><span>🛏️</span><span>Coucher: ${entry.bedtime || '--'}</span></div>
+                <div class="history-detail"><span>😴</span><span>Endormissement: ${entry.sleepOnset || '--'}</span></div>
                 <div class="history-detail"><span>⏰</span><span>Levé: ${entry.waketime || '--'}</span></div>
                 <div class="history-detail"><span>⏱️</span><span>Durée: ${entry.bedtime && entry.waketime ? duration : '--'}</span></div>
                 <div class="history-detail"><span>😴</span><span class="${qualityClass}">Qualité: ${entry.quality}/10</span></div>
@@ -856,6 +860,7 @@ async function openEditModal(id) {
     document.getElementById('edit-dayQuality').value = entry.dayQuality || 'sun';
     document.getElementById('edit-eveningActivity').value = entry.eveningActivity || 'screen';
     document.getElementById('edit-bedtime').value = entry.bedtime;
+    document.getElementById('edit-sleepOnset').value = entry.sleepOnset || '';
     document.getElementById('edit-awakenings').value = entry.awakenings;
     document.getElementById('edit-awakeningDuration').value = entry.awakeningDuration || 0;
     document.getElementById('edit-stuffyNose').value = entry.stuffyNose || 'no';
@@ -902,6 +907,7 @@ async function saveEdit(e) {
         dayQuality: document.getElementById('edit-dayQuality').value,
         eveningActivity: document.getElementById('edit-eveningActivity').value,
         bedtime: document.getElementById('edit-bedtime').value,
+        sleepOnset: document.getElementById('edit-sleepOnset').value || null,
         awakenings: parseInt(document.getElementById('edit-awakenings').value),
         awakeningDuration: parseInt(document.getElementById('edit-awakeningDuration').value) || 0,
         stuffyNose: document.getElementById('edit-stuffyNose').value,
