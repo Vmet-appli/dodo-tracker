@@ -1,5 +1,5 @@
 // Service Worker pour DodoTracker PWA
-const CACHE_NAME = 'dodotracker-v4';
+const CACHE_NAME = 'dodotracker-v5';
 const ASSETS_TO_CACHE = [
     '/',
     '/index.html',

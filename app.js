@@ -441,6 +441,7 @@ async function saveCurrentEntry(isValidation = false) {
             parseInt(document.getElementById('awakeningDuration').value) : 0,
         stuffyNose: document.getElementById('stuffyNose').value,
         sjsr: document.getElementById('sjsr').value,
+        bodyTension: document.getElementById('bodyTension').value,
         sjsrCount: document.getElementById('sjsr').value === 'yes' ?
             parseInt(document.getElementById('sjsrCount').value) : 0,
             roomTemp: document.getElementById('roomTemp').value,
@@ -663,6 +664,7 @@ async function loadExistingEntry(date) {
         document.getElementById('awakeningDuration').value = entry.awakeningDuration || 5;
         document.getElementById('stuffyNose').value = entry.stuffyNose || 'yes';
         document.getElementById('sjsr').value = entry.sjsr || 'yes';
+        document.getElementById('bodyTension').value = entry.bodyTension || 'no';
         document.getElementById('sjsrCount').value = entry.sjsrCount || 1;
         document.getElementById('sjsr-count-group').style.display = (entry.sjsr || 'yes') === 'yes' ? 'block' : 'none';
         document.getElementById('quality').value = entry.quality || 5;
@@ -865,6 +867,7 @@ async function openEditModal(id) {
     document.getElementById('edit-awakeningDuration').value = entry.awakeningDuration || 0;
     document.getElementById('edit-stuffyNose').value = entry.stuffyNose || 'no';
     document.getElementById('edit-sjsr').value = entry.sjsr || 'no';
+    document.getElementById('edit-bodyTension').value = entry.bodyTension || 'no';
     document.getElementById('edit-sjsrCount').value = entry.sjsrCount || 1;
     document.getElementById('edit-quality').value = entry.quality;
     document.getElementById('edit-energy').value = entry.energy;
@@ -912,6 +915,7 @@ async function saveEdit(e) {
         awakeningDuration: parseInt(document.getElementById('edit-awakeningDuration').value) || 0,
         stuffyNose: document.getElementById('edit-stuffyNose').value,
         sjsr: document.getElementById('edit-sjsr').value,
+        bodyTension: document.getElementById('edit-bodyTension').value,
         sjsrCount: parseInt(document.getElementById('edit-sjsrCount').value) || 0,
         quality: parseInt(document.getElementById('edit-quality').value),
         energy: parseInt(document.getElementById('edit-energy').value),
@@ -1135,6 +1139,7 @@ function analyzeCumulativeFactors(entries) {
         { name: 'Pas de petit-déj', check: e => e.breakfast === 'no' },
         { name: 'Peu dehors (<30min)', check: e => e.outdoorTime <= 30 },
         { name: 'Nez bouché', check: e => e.stuffyNose === 'yes' },
+        { name: 'Tension/crampe corps', check: e => e.bodyTension === 'yes' },
         { name: 'Sans magnésium', check: e => !e.supplements || !e.supplements.magnesium },
         { name: 'Sans kéfir', check: e => !e.supplements || !e.supplements.kefir },
         { name: 'Sans oméga 3', check: e => !e.supplements || !e.supplements.omega3 },
@@ -1155,6 +1160,7 @@ function analyzeCumulativeFactors(entries) {
         { name: 'Dîner végétal', check: e => e.dinner === 'vegetal' },
         { name: 'Temps dehors +1h', check: e => e.outdoorTime >= 60 },
         { name: 'Nez dégagé', check: e => e.stuffyNose === 'no' },
+        { name: 'Pas de tension corps', check: e => e.bodyTension === 'no' },
         { name: 'Avec magnésium', check: e => e.supplements && e.supplements.magnesium },
         { name: 'Avec kéfir', check: e => e.supplements && e.supplements.kefir },
         { name: 'Avec oméga 3', check: e => e.supplements && e.supplements.omega3 },
