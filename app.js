@@ -348,10 +348,11 @@ function initConditionalFields() {
             parseInt(e.target.value) > 0 ? 'block' : 'none';
     });
     
-    // SJSR -> nombre de fois
+    // SJSR -> nombre de fois + durée
     document.getElementById('sjsr').addEventListener('change', (e) => {
-        document.getElementById('sjsr-count-group').style.display = 
-            e.target.value === 'yes' ? 'block' : 'none';
+        const show = e.target.value === 'yes';
+        document.getElementById('sjsr-count-group').style.display = show ? 'block' : 'none';
+        document.getElementById('sjsr-duration-group').style.display = show ? 'block' : 'none';
     });
 }
 
@@ -444,6 +445,8 @@ async function saveCurrentEntry(isValidation = false) {
         bodyTension: document.getElementById('bodyTension').value,
         sjsrCount: document.getElementById('sjsr').value === 'yes' ?
             parseInt(document.getElementById('sjsrCount').value) : 0,
+        sjsrDuration: document.getElementById('sjsr').value === 'yes' ?
+            document.getElementById('sjsrDuration').value : null,
             roomTemp: document.getElementById('roomTemp').value,
             noise: document.getElementById('noise').value,
             darkness: document.getElementById('darkness').value,
@@ -666,7 +669,9 @@ async function loadExistingEntry(date) {
         document.getElementById('sjsr').value = entry.sjsr || 'yes';
         document.getElementById('bodyTension').value = entry.bodyTension || 'no';
         document.getElementById('sjsrCount').value = entry.sjsrCount || 1;
+        document.getElementById('sjsrDuration').value = entry.sjsrDuration || 'fast';
         document.getElementById('sjsr-count-group').style.display = (entry.sjsr || 'yes') === 'yes' ? 'block' : 'none';
+        document.getElementById('sjsr-duration-group').style.display = (entry.sjsr || 'yes') === 'yes' ? 'block' : 'none';
         document.getElementById('quality').value = entry.quality || 5;
         document.getElementById('energy').value = entry.energy || 5;
         document.getElementById('dreams').value = entry.dreams || 'none';
@@ -871,6 +876,7 @@ async function openEditModal(id) {
     document.getElementById('edit-sjsr').value = entry.sjsr || 'no';
     document.getElementById('edit-bodyTension').value = entry.bodyTension || 'no';
     document.getElementById('edit-sjsrCount').value = entry.sjsrCount || 1;
+    document.getElementById('edit-sjsrDuration').value = entry.sjsrDuration || 'fast';
     document.getElementById('edit-quality').value = entry.quality;
     document.getElementById('edit-energy').value = entry.energy;
     document.getElementById('edit-dreams').value = entry.dreams;
@@ -919,6 +925,7 @@ async function saveEdit(e) {
         sjsr: document.getElementById('edit-sjsr').value,
         bodyTension: document.getElementById('edit-bodyTension').value,
         sjsrCount: parseInt(document.getElementById('edit-sjsrCount').value) || 0,
+        sjsrDuration: document.getElementById('edit-sjsrDuration').value || null,
         quality: parseInt(document.getElementById('edit-quality').value),
         energy: parseInt(document.getElementById('edit-energy').value),
         dreams: document.getElementById('edit-dreams').value,
